@@ -17,10 +17,10 @@ export type ReserveModel = {
 
 export default function CalendarPage() {
   
-  const [dayBoundaries, setdayBoundaries] = useState<DayBoundariesExternal>({
+  const dayBoundaries: DayBoundariesExternal = {
     start: '06:00',
     end: '18:00'
-  })
+  }
 
   const [reserveModel, setReserveModel] = useState<ReserveModel>({
     selectedCategory: 'MeetingRoom',
@@ -31,9 +31,6 @@ export default function CalendarPage() {
   });
 
   const [allresources, setAllResources] = useState<ResourceDto[]>([])
-
-  console.log(reserveModel)
-  console.log(allresources)
 
   useEffect(() => {
     async function fetchResources() {

@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Identity;
 using Backend.Repository;
 using Backend.Models;
 
+namespace Backend.Services;
+
 public class UserService
 {
     private readonly UserRepository _repo;
@@ -15,11 +17,12 @@ public class UserService
         _hasher = new PasswordHasher<User>();
     }
 
-    public async Task<LoginResponseDto> LoginUser(LoginUserDto user)
+    public async Task<LoginResponseDto> LoginUser(LoginUserDto user, Role? requiredRole = null)
     {
         User? foundUser = await _repo.FindUserAsync(user.UserName);
 
-        if (foundUser == null || foundUser.PasswordHash == null)
+        if (foundUser == null || foundUser.PasswordHash == null ||
+            (requiredRole.HasValue && foundUser.Role != requiredRole.Value))
             throw new UnauthorizedAccessException("Invalid username or password");
 
         var correctPasword = _hasher.VerifyHashedPassword(
@@ -39,7 +42,7 @@ public class UserService
         };
     }
 
-    public async Task<UserCreatedOrLoggedIn> RegisterUser(CreateUserDto user)
+    public async Task<UserCreatedOrLoggedIn> RegisterUser(CreateUserDto user, Role role = Role.User)
     {
         if (user.Password == null)
             throw new Exception("Password cant be null");
@@ -50,7 +53,7 @@ public class UserService
         User createdUser = new User {
             Email = user.Email,
             UserName = user.UserName,
-            Role = Role.User
+            Role = role
         };
 
         var hash = _hasher.HashPassword(createdUser, user.Password);

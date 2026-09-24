@@ -8,29 +8,11 @@ import { useBookingEvents } from '../ts/useBookingEvents';
 import Popup from '../components/Popup';
 import RegisteringPage from './Registering';
 import { apiRegisterAdmin } from '../ts/apiCalls/Admin';
-
-
-interface AdminDataProps{
-    id: number
-    title: string
-}
-
-export type Status = "Booked";
-
-
-type BookingRowDataProps = {
-    id: number,
-    userName: string,
-    date: string,
-    startTime: string,
-    endTime: string,
-    resourceName: string,
-    status: Status
-}
+import type { BookingDto } from '../ts/dto/BookingDto';
 
 export default function AdminPage() {
     const { userId,userRole } = useAuth();
-    const [bookingRow, setBookingRow] = useState<BookingRowDataProps[]>([]);
+    const [bookingRow, setBookingRow] = useState<BookingDto[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [endDate, setEndDate] = useState<string>();
     const [startDate, setStartDate] = useState<string>();
@@ -40,7 +22,7 @@ export default function AdminPage() {
     useBookingEvents(
     {
         onCreated: (b) => {
-            setBookingRow(prev => [...prev, { ...b, status: "Booked" as Status }]);
+            setBookingRow(prev => [...prev, b]);
         },
         onCancelled: (b) => {
             setBookingRow(prev => prev.filter(booking => booking.id !== b.id));
@@ -62,9 +44,6 @@ const filteredBookings = bookingRow.filter(booking => {
 })
     const today = new Date().toISOString().split("T")[0];
     const bookingsToday = bookingRow.filter(booking => booking.date === today).length;
-    const [summary] = useState<AdminDataProps[]>([
-    {id: 1, title: "Total Bookings Today"}
-    ]);
 
     async function handleDelete(id: number){
         try{
@@ -80,11 +59,7 @@ const filteredBookings = bookingRow.filter(booking => {
         
         async function fetchBookings() {
             const data = await  apiGetAllBookings();
-            const withStatus = data.map(booking => ({
-                ...booking, status: "Booked" as Status
-            }));
-            
-                setBookingRow(withStatus)
+            setBookingRow(data)
         }
         fetchBookings();
     },[])
@@ -104,19 +79,14 @@ const filteredBookings = bookingRow.filter(booking => {
                  <h2>System Activity Summary</h2>
                  <button className='adminButton' onClick={() => setIsOpen(true)}>+ New Admin</button>
              </div>
-       <Popup 
-            children={<RegisteringPage registerApiCall={apiRegisterAdmin}/>}
-            isOpen={isOpen}
-            onClose={() => setIsOpen(false)}
-        />
+       <Popup isOpen={isOpen} onClose={() => setIsOpen(false)}>
+           <RegisteringPage registerApiCall={apiRegisterAdmin}/>
+       </Popup>
        <div className='summaryCardContent'>
-        {summary.map(item => ( 
         <SummaryCard 
-        key={item.id}
-        title={item.title}
+        title="Total Bookings Today"
         value={bookingsToday}
         />
-        ))}
         </div>
        <div className='filterStatus'>
         <input type="text" className='filterControl'  placeholder='Search Employee or Room' value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}/>
@@ -144,7 +114,6 @@ const filteredBookings = bookingRow.filter(booking => {
                 startTime={booking.startTime}
                 endTime={booking.endTime}
                 resourceName={booking.resourceName}
-                status={booking.status}
                 onDelete={handleDelete}
                 />
             ))}

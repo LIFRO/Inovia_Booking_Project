@@ -20,11 +20,8 @@ export default function HourlyTimePicker({
     const maxHour = parseInt(maxDisplayedTime.toString().split(':')[0], 10)
     const normalizedValue = value ? value.slice(0, 5) : '';
 
-    //Generates hours arrays
     const hourlyOptions = Array.from({length: 24 }, (_, i) => i)
-    //filters away hour outside boundry
     .filter(hour => hour >= minHour && hour <= maxHour)
-    //formats to "HH:00" strings
     .map(hour => {
         const formattedHour = String(hour).padStart(2, '0');
         return `${formattedHour}:00`;
@@ -32,12 +29,8 @@ export default function HourlyTimePicker({
 
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const value = e.target.value; // HH:MM
+        const value = e.target.value;
         if(!value) return;
-
-        //const [hours] = value.split(':')
-
-        //const enforcedHourlyTime = `${hours}:00`
         onChange(value)
     }
 

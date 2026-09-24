@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { apiRegister } from "../ts/apiCalls/User.tsx";
 import "./CSS/LoginPage.css";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
 interface RegisterPageProps{
-	registerApiCall: (email: string, userName: string, password: string) => Promise<any>
+	registerApiCall: (email: string, userName: string, password: string) => Promise<unknown>
 }
 
 function RegisteringPage({registerApiCall}: RegisterPageProps) {
@@ -18,16 +17,13 @@ function RegisteringPage({registerApiCall}: RegisterPageProps) {
 
 	async function funcRegister(email: string, userName: string, password: string) {
         try{
-            const result = await registerApiCall(email, userName, password);
+            await registerApiCall(email, userName, password);
             setErrorMessage("");
             setSuccessMessage("Registrering lyckades");
             setTimeout(() => {
                 navigate("/login");
             }, 1500);
-            return result;
-            
-
-        }catch(error){
+        }catch{
             setErrorMessage("Fel vid registrering");
         }
 	};

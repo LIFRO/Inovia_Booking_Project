@@ -14,7 +14,10 @@ export function useBookingEvents(
   isAdmin: boolean,
 ) {
   const ref = useRef(handlers)
-  ref.current = handlers
+
+  useEffect(() => {
+    ref.current = handlers
+  })
 
   useEffect(() => {
     const created = (b: BookingDto) => ref.current.onCreated?.(b)

@@ -34,8 +34,7 @@ function LoginPage() {
 			setUserId(id)
 			setErrorMessage("");
 			navigate("/")
-			return result;
-		}catch(error){
+		}catch{
 			setErrorMessage("Fel användarnamn eller lösenord")
 
 		}

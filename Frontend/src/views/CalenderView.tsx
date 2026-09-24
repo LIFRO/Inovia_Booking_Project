@@ -1,13 +1,10 @@
 import { createEventsServicePlugin } from "@schedule-x/events-service";
 import { ScheduleXCalendar, useCalendarApp } from "@schedule-x/react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   createViewDay,
   createViewWeekAgenda,
-  createViewMonthAgenda,
-  createViewMonthGrid,
   createViewWeek,
-  viewMonthGrid,
   viewWeek,
 } from '@schedule-x/calendar'
 import type { CalendarEventExternal, DayBoundariesExternal } from "@schedule-x/calendar";
@@ -16,8 +13,8 @@ import '@schedule-x/theme-default/dist/index.css'
 import './CSS/CallenderView.css'
 import { createEventModalPlugin } from "@schedule-x/event-modal";
 import CancelBookingModal from "../components/CancelBookingModal";
-import { apiGetAllBookings, apiGetMyBookings } from "../ts/apiCalls/Booking";
-import { toZonedDateTime, toZonedDateTimeFromStrings } from "../ts/dateUtils";
+import { apiGetAllBookings } from "../ts/apiCalls/Booking";
+import { toZonedDateTimeFromStrings } from "../ts/dateUtils";
 import { useBookingEvents } from "../ts/useBookingEvents";
 import { useAuth } from "../ts/types/AuthContext";
 import type { BookingDto } from "../ts/dto/BookingDto";
@@ -42,9 +39,9 @@ export default function CalenderView({selectedResource, selectedDate, dayBoundar
 
     const eventsService = useState(() => createEventsServicePlugin())[0]
     const [calendarControls] = useState(() => createCalendarControlsPlugin());
-    const eventModal = createEventModalPlugin()
+    const [eventModal] = useState(() => createEventModalPlugin())
 
-    function toCalendarEvent(b: BookingDto): CustomCalendarEventExternal {
+    const toCalendarEvent = useCallback((b: BookingDto): CustomCalendarEventExternal => {
         const calenderEvent: CustomCalendarEventExternal = {
             id: b.id,
             title: b.resourceName || `Resurs ${b.resourceId}`,
@@ -60,7 +57,7 @@ export default function CalenderView({selectedResource, selectedDate, dayBoundar
             }
         }
         return calenderEvent
-    }
+    }, [authContext.userId])
 
     useBookingEvents({
         onCreated: (b) => eventsService.add(toCalendarEvent(b)),
@@ -119,7 +116,7 @@ export default function CalenderView({selectedResource, selectedDate, dayBoundar
             eventsService.set(filtered.map(b => toCalendarEvent(b)))
         })
         .catch(console.error)
-    }, [selectedResource]);
+    }, [selectedResource, eventsService, toCalendarEvent]);
 
     return(
         <div>

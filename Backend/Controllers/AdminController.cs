@@ -1,19 +1,15 @@
-using Backend.Data;
 using Backend.Models;
 using Backend.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AdminController(IBookingNotifier notifier, AdminService service) : ControllerBase
+public class AdminController(UserService service) : ControllerBase
 {
-    private readonly IBookingNotifier _notifier = notifier;
-    private readonly AdminService _service = service;
+    private readonly UserService _service = service;
 
     //Login för Admin
 
@@ -22,7 +18,7 @@ public class AdminController(IBookingNotifier notifier, AdminService service) : 
     {
         try
         {
-            LoginResponseDto result = await _service.LoginUser(user);
+            LoginResponseDto result = await _service.LoginUser(user, Role.Admin);
             return Ok(result);
         }
         catch (UnauthorizedAccessException)
@@ -38,7 +34,7 @@ public class AdminController(IBookingNotifier notifier, AdminService service) : 
     {
         try
         {
-            await _service.RegisterUser(user);
+            await _service.RegisterUser(user, Role.Admin);
         }
         catch (ArgumentException)
         {
@@ -49,7 +45,7 @@ public class AdminController(IBookingNotifier notifier, AdminService service) : 
             Password = user.Password!,
         };
 
-        LoginResponseDto result = await _service.LoginUser(login);
+        LoginResponseDto result = await _service.LoginUser(login, Role.Admin);
 
         return Ok(result);
     }

@@ -44,7 +44,6 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<UserService>();
-builder.Services.AddScoped<AdminService>();
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<BookingRepository>();
 builder.Services.AddScoped<BookingService>();

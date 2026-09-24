@@ -69,12 +69,6 @@ export default function ReserveCard({
         resourceId: foundResource.id 
     })
 
-    /*setReserveModel({
-        ...reserveModel,
-        selectedDate: null,
-        selectedEndTime: null,
-        selectedStartTime: null
-    })*/
     setErrorMessage("");
     setSuccessMessage("Booking Confirmed");
 }
