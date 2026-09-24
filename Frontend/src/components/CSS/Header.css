@@ -1,0 +1,20 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1px 16px;
+  border-bottom: 1px solid rgb(192, 188, 188); 
+}
+
+.bookingBtn {
+  background-color: #14b8a6;
+  color: rgb(241, 240, 240);
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  text-decoration: none;
+  display: inline-block;
+}

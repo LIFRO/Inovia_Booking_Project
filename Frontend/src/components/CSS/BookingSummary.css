@@ -1,0 +1,41 @@
+.deleteBtn{
+    background: none;
+    cursor: pointer;
+    color: #dc2626;
+    font-weight: 600;
+    font-size: 13px;
+    border: 1px solid #dc2626; 
+    border-radius: 8px;
+    padding: 8px 20px;
+}
+.statusBooked, .statusCancelled {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.statusBooked {
+  background-color: #dcfce7;
+  color: #16a34a;
+}
+
+.statusCancelled {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+.employeeName{
+  color: black;
+  font-size: 14px;
+  font-weight: 600;
+}
+.employeeEmail{
+  color: rgb(107, 106, 106);
+  font-size: small;
+}
+.resourceBooked{
+  color: black;
+  font-size: small;
+  font-weight: 400;
+}

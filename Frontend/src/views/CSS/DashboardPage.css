@@ -1,0 +1,47 @@
+.overviewCards{
+  display: flex;
+  flex-direction: row;
+  gap: 50px;
+}
+.recourceCards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.dashboardContent {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: 24px;
+  overflow-y: auto;
+}
+.dashboardContent::-webkit-scrollbar {
+  display: none;
+}
+.exploreResources {
+  flex: 1;
+}
+.myBookings, .pastBookings {
+  flex-shrink: 0;
+  background-color: white;
+  border-radius: 12px;
+  border: 1px solid rgb(229, 231, 235);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.contentRow{
+  display: flex;
+  gap: 32px;
+  flex: 1;
+  min-height: 0;
+}
+.bookingsColumn{
+  width: 450px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}

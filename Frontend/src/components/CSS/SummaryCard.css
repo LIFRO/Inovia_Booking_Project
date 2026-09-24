@@ -1,0 +1,22 @@
+.summaryCard{
+    display: flex;
+    background-color: white;
+    flex: 1;
+    border-radius: 8px;
+    border: 1px solid rgb(229, 231, 235);
+    padding: 10px;
+    flex-direction: column;
+    gap:20px;
+}
+.summaryCardTitle{
+    margin: 0;
+    color: rgb(107, 106, 106);
+    font-size: large;
+    font-weight: 400;
+}
+.summaryCardValue{
+    margin: 0;
+    color: black;
+    font-size: xx-large;
+    font-weight:bold;
+}

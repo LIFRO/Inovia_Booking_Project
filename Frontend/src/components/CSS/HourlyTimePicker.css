@@ -1,0 +1,30 @@
+/* Styling som efterliknar ett standard input-fält */
+.fake-input {
+  /* Tar bort webbläsarens standard-dropdown-pil */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+
+  /* Standardmått och form för ett input-fält */
+  width: 150px;
+  padding: 8px 12px;
+  font-size: 16px;
+  font-family: sans-serif;
+  
+  /* Kantlinjer och bakgrund */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #ffffff;
+  color: #333333;
+  cursor: pointer;
+  
+  /* Säkerställer att texten ligger centrerad vertikalt */
+  line-height: 1.5;
+}
+
+/* Lägg till en subtil visuell effekt vid fokus/klick (precis som ett input) */
+.fake-input:focus {
+  outline: none;
+  border-color: #0066cc;
+  box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.2);
+}

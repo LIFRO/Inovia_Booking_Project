@@ -1,0 +1,68 @@
+.reserveCard{
+    display: flex;
+    flex-direction: column;
+    padding: 12px 16px;
+    gap: 10px;
+}
+
+.input, .selectValue, .timeValue{
+    color: black;
+    font-size: 12px;
+    margin: 0;
+    border-radius: 8px;
+    padding: 2px 16px;
+    width: 100%;
+    border: 1px solid rgb(229, 231, 235);
+}
+.timeContent{
+  display: flex;
+  gap: 12px;
+}
+.timeContent .timeValue {
+  flex: 1;
+  width: auto;
+}
+.confirmBtn{
+    background-color: #14b8a6;
+    color: rgb(241, 240, 240);
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-block;
+    width: 100%;
+}
+.timeGroup {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 4px;
+}
+label{
+    margin: 0;
+    color: rgb(107, 106, 106);
+    font-size: medium;
+    font-weight: 400;
+}
+.toast{
+  position: fixed;
+  top: 70px;
+  right: 20px;
+  z-index: 1000;
+  background-color: white;
+  padding: 16px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.successText {
+  color: #16a34a;
+  margin: 0;
+}
+
+.errorText {
+  color: #dc2626;
+  margin: 0;
+}

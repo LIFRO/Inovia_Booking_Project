@@ -1,0 +1,13 @@
+# .NET build output
+**/bin/
+**/obj/
+
+# Frontend dependencies and build output
+**/node_modules/
+**/dist/
+
+# Local development files
+*.user
+*.suo
+*.log
+.DS_Store

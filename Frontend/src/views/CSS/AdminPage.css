@@ -1,0 +1,112 @@
+.summaryContent{
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    gap: 24px;
+    overflow-y: auto;
+}
+
+.summaryHeader{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.summaryHeader h2{
+    margin: 0;
+    color: #1f2937;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.adminButton{
+    flex: 0 0 auto;
+    background-color: #14b8a6;
+    color: rgb(241, 240, 240);
+    border: 1px solid #0f9f91;
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.25;
+    box-shadow: 0 2px 5px rgba(20, 184, 166, 0.18);
+    transition: background-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.adminButton:hover,
+.adminButton:focus-visible{
+    background-color: #0f9f91;
+    box-shadow: 0 4px 10px rgba(20, 184, 166, 0.25);
+}
+
+.adminButton:focus-visible{
+    outline: 3px solid rgba(20, 184, 166, 0.28);
+    outline-offset: 2px;
+}
+
+.adminButton:active{
+    transform: translateY(1px);
+}
+
+.summaryCardContent{
+    display: flex;
+    flex-direction: row;
+    gap: 32px;
+}
+
+.filterStatus{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: auto;
+    border-radius: 12px;
+    padding: 10px;
+    gap: 10px;
+}      
+
+.filterControl{
+    padding: 10px;
+    width: 250px;
+    border-radius: 8px;
+    border: 1px solid rgb(229, 231, 235);
+    font-size: medium;
+}
+table{
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    border-radius: 12px;
+    overflow: hidden;
+}
+th{
+    color: rgb(107, 106, 106);
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0;
+    padding: 10px;
+    border-bottom: 1px solid rgb(192, 188, 188); 
+    text-align: left;
+}
+td{
+    padding: 10px;
+    border-bottom: 1px solid rgb(231, 231, 231); 
+    color: rgb(107, 106, 106);
+  font-size: small;
+}
+.toast{
+  position: fixed;
+  top: 70px;
+  right: 20px;
+  z-index: 1000;
+  background-color: white;
+  padding: 16px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.errorText {
+  color: #dc2626;
+  margin: 0;
+}

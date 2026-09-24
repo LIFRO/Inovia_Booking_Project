@@ -1,0 +1,18 @@
+<svg width="100%" viewBox="0 0 330 100" role="img" xmlns="http://www.w3.org/2000/svg" style="">
+<title style="fill:rgb(0, 0, 0);stroke:none;color:rgb(11, 11, 11);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:anthropic-sans, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto">Innovia Hub logotyp</title>
+<desc style="fill:rgb(0, 0, 0);stroke:none;color:rgb(11, 11, 11);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:anthropic-sans, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto">Två böjda löv-former i cyan och blått/lila, bredvid texten Innovia Hub och Innovation Center</desc>
+<defs>
+<linearGradient id="leaf1" x1="0%" y1="0%" x2="100%" y2="100%">
+<stop offset="0%" stop-color="#22d3ee"/>
+<stop offset="100%" stop-color="#0891b2"/>
+</linearGradient>
+<linearGradient id="leaf2" x1="0%" y1="0%" x2="100%" y2="100%">
+<stop offset="0%" stop-color="#6366f1"/>
+<stop offset="100%" stop-color="#4338ca"/>
+</linearGradient>
+</defs>
+<path d="M15 15 C0 30, 0 50, 13 70 C20 80, 33 80, 35 67 C37 55, 27 45, 23 33 C20 25, 18 19, 15 15 Z" fill="url(#leaf1)" style="stroke:none;color:rgb(11, 11, 11);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:anthropic-sans, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<path d="M45 25 C33 37, 33 55, 45 75 C53 87, 67 87, 69 73 C71 60, 59 51, 55 38 C52 30, 49 26, 45 25 Z" fill="url(#leaf2)" style="stroke:none;color:rgb(11, 11, 11);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:anthropic-sans, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<text x="90" y="45" font-family="var(--font-sans)" font-size="30" font-weight="500" fill="var(--text-primary)" style="fill:rgb(11, 11, 11);stroke:none;color:rgb(11, 11, 11);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:anthropic-sans, sans-serif;font-size:30px;font-weight:500;text-anchor:start;dominant-baseline:auto">Innovia Hub</text>
+<text x="90" y="68" font-family="var(--font-sans)" font-size="13" letter-spacing="1.5" fill="var(--text-secondary)" style="fill:rgb(82, 81, 78);stroke:none;color:rgb(11, 11, 11);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:anthropic-sans, sans-serif;font-size:13px;font-weight:400;text-anchor:start;dominant-baseline:auto">INNOVATION CENTER</text>
+</svg>
