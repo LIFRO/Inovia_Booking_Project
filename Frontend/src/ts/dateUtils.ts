@@ -1,20 +1,22 @@
-/**
- * Converts backend DateOnly and TimeOnly strings into a Stockholm zoned time.
- */
-export function toZonedDateTimeFromStrings(
-    dateStr: string,
-    timeStr: string
-): Temporal.ZonedDateTime {
-    const [year, month, day] = dateStr.split('-').map(Number);
-    const [hour, minute] = timeStr.split(':').map(Number);
+const stockholmDate = new Intl.DateTimeFormat('sv-SE', {
+  timeZone: 'Europe/Stockholm',
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+})
 
-    return globalThis.Temporal.ZonedDateTime.from({
-        timeZone: 'Europe/Stockholm',
-        year,
-        month,
-        day,
-        hour,
-        minute,
-        second: 0
-    });
+export function todayInStockholm(): string {
+  return stockholmDate.format(new Date())
+}
+
+// UTC keeps calendar days stable across daylight saving changes.
+export function addDays(date: string, days: number): string {
+  const value = new Date(`${date}T00:00:00Z`)
+  value.setUTCDate(value.getUTCDate() + days)
+  return value.toISOString().slice(0, 10)
+}
+
+export function startOfWeek(date: string): string {
+  const weekday = new Date(`${date}T00:00:00Z`).getUTCDay()
+  return addDays(date, -(weekday === 0 ? 6 : weekday - 1))
 }

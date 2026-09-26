@@ -14,7 +14,7 @@ public class BookingNotifier : IBookingNotifier
         _hub.Clients.All.SendAsync("BookingCreated", booking);
     
     public Task BookingCancelled(BookingDto booking) => 
-        _hub.Clients.Group($"user-{booking.UserId}").SendAsync("BookingCancelled", booking);
+        _hub.Clients.All.SendAsync("BookingCancelled", booking);
 
     public Task BookingDeleted(BookingDto booking) =>
         _hub.Clients.Group("admins").SendAsync("BookingDeleted", booking);

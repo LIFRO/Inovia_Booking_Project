@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react'
 import './CSS/ReserveCard.css'
 import type { ReserveModel } from '../views/CalendarPage'
 import type { ResourceDto } from '../ts/dto/ResourceDTO'
-import type { DayBoundariesExternal } from '@schedule-x/calendar'
-import HourlyTimePicker from './HourlyTimePicker'
 import { apiCreateBooking } from '../ts/apiCalls/Booking'
 import { useAuth } from '../ts/types/AuthContext'
+import type { BookingDto } from '../ts/dto/BookingDto'
+import { endTimes } from '../ts/bookingTimes'
 
 
 
@@ -14,25 +14,31 @@ interface CategoryProps {
     setReserveModel: React.Dispatch<React.SetStateAction<ReserveModel>>
     resources: ResourceDto[],
     filteredCategory: ResourceDto[],
-    dayBoundaries: DayBoundariesExternal
+    availableSlots: string[]
+    availabilityError: string
+    loading: boolean
+    onBookingCreated: (booking: BookingDto) => void
 }
-
-function toTemporalTime(time: string): string {
-    const [hour, minute = '00'] = time.split(':')
-    return `${hour.padStart(2, '0')}:${minute.padStart(2, '0')}`
-}
-
 
 export default function ReserveCard({
     resources, 
     filteredCategory, 
     reserveModel, 
     setReserveModel, 
-    dayBoundaries}: CategoryProps) {
+    availableSlots,
+    availabilityError,
+    loading,
+    onBookingCreated}: CategoryProps) {
     
     const authContext = useAuth();
     const [errorMessage, setErrorMessage] = useState<string>("");
     const [successMessage, setSuccessMessage] = useState<string>("");
+    const [startTime, setStartTime] = useState('')
+    const [endTime, setEndTime] = useState('')
+
+    const selectedStartTime = availableSlots.includes(startTime) ? startTime : availableSlots[0] ?? ''
+    const endOptions = endTimes(selectedStartTime, availableSlots)
+    const selectedEndTime = endOptions.includes(endTime) ? endTime : endOptions[0] ?? ''
 
     useEffect(() => {
         if(successMessage !== ""){
@@ -51,7 +57,7 @@ export default function ReserveCard({
     },[successMessage, errorMessage])
 
     async function handleConfirm(){
-    if(reserveModel.selectedDate === null || reserveModel.selectedStartTime === null || reserveModel.selectedEndTime === null){
+    if(!reserveModel.selectedDate || !selectedStartTime || !selectedEndTime || loading || availabilityError){
         setErrorMessage("Please fill in all fields")
         setSuccessMessage("");
         return
@@ -61,25 +67,22 @@ export default function ReserveCard({
     if(!foundResource)
         return;
 
-    await apiCreateBooking({
-        date: reserveModel.selectedDate.toString(),
-        endTime: reserveModel.selectedEndTime.toString(),
-        startTime: reserveModel.selectedStartTime.toString(),
-        name: authContext.userName,
-        resourceId: foundResource.id 
-    })
-
-    setErrorMessage("");
-    setSuccessMessage("Booking Confirmed");
+    try {
+        const booking = await apiCreateBooking({
+            date: reserveModel.selectedDate,
+            endTime: selectedEndTime,
+            startTime: selectedStartTime,
+            name: authContext.userName,
+            resourceId: foundResource.id
+        })
+        onBookingCreated(booking)
+        setErrorMessage("");
+        setSuccessMessage("Booking Confirmed");
+    } catch {
+        setSuccessMessage("");
+        setErrorMessage("Could not book this time. Please try another slot.")
+    }
 }
-    //Logical relationship between start and end time
-    const maxStartTime: string = reserveModel.selectedEndTime? 
-    `${parseInt(reserveModel.selectedEndTime.toString().split(':')[0], 10) - 1}:00` :
-    `${parseInt(dayBoundaries.end.toString().split(':')[0], 10) - 1}:00` 
-    
-    const minEndTime: string = reserveModel.selectedStartTime? 
-    `${parseInt(reserveModel.selectedStartTime.toString().split(':')[0], 10) + 1}:00` : 
-    `${parseInt(dayBoundaries.start.toString().split(':')[0], 10) + 1}:00`
 
     const categoryFilter = resources.map((c) => c.type);
     const categoryOptions =[...new Set(categoryFilter)]
@@ -119,40 +122,42 @@ export default function ReserveCard({
         </select>
 
         <label htmlFor="dateValue">Date</label>
-        <input id='dateValue' type="date" className='timeValue' value={reserveModel.selectedDate?.toString() ?? ''} onChange={(e) => setReserveModel({
+        <input id='dateValue' type="date" className='timeValue' value={reserveModel.selectedDate} onChange={(e) => setReserveModel({
             ...reserveModel,
-            selectedDate: Temporal.PlainDate.from(e.target.value)
+            selectedDate: e.target.value
         })}/>
         <div className='timeContent'>
             <div className='timeGroup'>
                 <label htmlFor="startTime">Start Time</label>
-                <HourlyTimePicker 
-                      id='startTime'
-                      className='timeValue'
-                      value={reserveModel.selectedStartTime?.toString() ?? ''}
-                      minDisplayedTime={Temporal.PlainTime.from(toTemporalTime(dayBoundaries.start))}
-                      maxDisplayedTime={Temporal.PlainTime.from(toTemporalTime(maxStartTime))}
-                      onChange={(time: string) => setReserveModel({
-                          ...reserveModel,
-                          selectedStartTime: Temporal.PlainTime.from(time)
-                      })}/>
+                <select id='startTime' className='timeValue' value={selectedStartTime}
+                    disabled={loading || !!availabilityError || !availableSlots.length}
+                    onChange={(e) => { setStartTime(e.target.value); setEndTime('') }}>
+                    {!selectedStartTime && <option value="">No times available</option>}
+                    {availableSlots.map(time =>
+                        <option key={time} value={time}>{time}</option>
+                    )}
+                </select>
             </div>
             <div className='timeGroup'>
                 <label htmlFor="endTime">End Time</label>
-                <HourlyTimePicker 
-                    id='endTime' 
-                    className='timeValue' 
-                    value={reserveModel.selectedEndTime?.toString() ?? ''} 
-                    minDisplayedTime={Temporal.PlainTime.from(toTemporalTime(minEndTime))}
-                    maxDisplayedTime={Temporal.PlainTime.from(toTemporalTime(dayBoundaries.end))}
-                    onChange={(time: string) => setReserveModel({
-                        ...reserveModel,
-                        selectedEndTime: Temporal.PlainTime.from(time)
-                })}/>
+                <select id='endTime' className='timeValue' value={selectedEndTime}
+                    disabled={loading || !!availabilityError || !endOptions.length}
+                    onChange={(e) => setEndTime(e.target.value)}>
+                    {!selectedEndTime && <option value="">No times available</option>}
+                    {endOptions.map(time =>
+                        <option key={time} value={time}>{time}</option>
+                    )}
+                </select>
             </div>
         </div>
+        {(loading || availabilityError || !availableSlots.length) &&
+            <p className='availabilityMessage' role="status">
+                {loading ? 'Loading available times…' : availabilityError ||
+                    (!reserveModel.selectedDate ? 'Select a date.' : 'No available times for this day.')}
+            </p>}
         <div className='confirmContent'>
-        <button type='button' className='confirmBtn' onClick={handleConfirm}>+ Confirm Booking</button>
+        <button type='button' className='confirmBtn' onClick={handleConfirm}
+            disabled={loading || !!availabilityError || !selectedEndTime}>+ Confirm Booking</button>
         </div>
         {(successMessage || errorMessage) && (
         <div className='toast'>

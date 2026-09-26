@@ -35,6 +35,8 @@
     display: inline-block;
     width: 100%;
 }
+.confirmBtn:disabled { opacity: .55; cursor: not-allowed; }
+.availabilityMessage { margin: 2px 0; color: #64748b; font-size: 13px; }
 .timeGroup {
   display: flex;
   flex-direction: column;
