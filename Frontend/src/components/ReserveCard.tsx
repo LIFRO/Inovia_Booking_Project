@@ -6,6 +6,7 @@ import { apiCreateBooking } from '../ts/apiCalls/Booking'
 import { useAuth } from '../ts/types/AuthContext'
 import type { BookingDto } from '../ts/dto/BookingDto'
 import { endTimes } from '../ts/bookingTimes'
+import axios from 'axios'
 
 
 
@@ -37,6 +38,7 @@ export default function ReserveCard({
     const authContext = useAuth();
     const [errorMessage, setErrorMessage] = useState<string>("");
     const [successMessage, setSuccessMessage] = useState<string>("");
+    const [submitting, setSubmitting] = useState(false)
     const [endSelection, setEndSelection] = useState({ date: '', resource: '', start: '', end: '' })
 
     const selectedStartTime = availableSlots.includes(startTime) ? startTime : availableSlots[0] ?? ''
@@ -63,6 +65,7 @@ export default function ReserveCard({
     },[successMessage, errorMessage])
 
     async function handleConfirm(){
+    if (submitting) return
     if(!reserveModel.selectedDate || !selectedStartTime || !selectedEndTime || loading || availabilityError){
         setErrorMessage("Please fill in all fields")
         setSuccessMessage("");
@@ -73,6 +76,7 @@ export default function ReserveCard({
     if(!foundResource)
         return;
 
+    setSubmitting(true)
     try {
         const booking = await apiCreateBooking({
             date: reserveModel.selectedDate,
@@ -84,9 +88,15 @@ export default function ReserveCard({
         onBookingCreated(booking)
         setErrorMessage("");
         setSuccessMessage("Booking Confirmed");
-    } catch {
+    } catch (error) {
         setSuccessMessage("");
-        setErrorMessage("Could not book this time. Please try another slot.")
+        const serverMessage = axios.isAxiosError(error) && typeof error.response?.data === 'string'
+            ? error.response.data : ''
+        setErrorMessage(serverMessage || (axios.isAxiosError(error) && error.response?.status === 401
+            ? 'Your session has expired. Please sign in again.'
+            : 'Could not book this time. Please try again.'))
+    } finally {
+        setSubmitting(false)
     }
 }
 
@@ -168,7 +178,7 @@ export default function ReserveCard({
             </p>}
         <div className='confirmContent'>
         <button type='button' className='confirmBtn' onClick={handleConfirm}
-            disabled={loading || !!availabilityError || !selectedEndTime}>+ Confirm Booking</button>
+            disabled={loading || submitting || !!availabilityError || !selectedEndTime}>{submitting ? 'Booking…' : '+ Confirm Booking'}</button>
         </div>
         {(successMessage || errorMessage) && (
         <div className='toast'>
