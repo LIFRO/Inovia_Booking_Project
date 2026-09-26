@@ -3,7 +3,6 @@ import './CSS/AdminPage.css'
 import SummaryCard from '../components/SummaryCard';
 import BookingSummary from '../components/BookingSummary';
 import { apiDeleteBooking, apiGetAllBookings } from '../ts/apiCalls/Booking';
-import { useAuth } from '../ts/types/AuthContext';
 import { useBookingEvents } from '../ts/useBookingEvents';
 import Popup from '../components/Popup';
 import RegisteringPage from './Registering';
@@ -11,7 +10,6 @@ import { apiRegisterAdmin } from '../ts/apiCalls/Admin';
 import type { BookingDto } from '../ts/dto/BookingDto';
 
 export default function AdminPage() {
-    const { userId,userRole } = useAuth();
     const [bookingRow, setBookingRow] = useState<BookingDto[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [endDate, setEndDate] = useState<string>();
@@ -21,8 +19,8 @@ export default function AdminPage() {
 
     useBookingEvents(
     {
-        onCreated: (b) => {
-            setBookingRow(prev => [...prev, b]);
+        onPrivateCreated: (b) => {
+            setBookingRow(prev => [...prev.filter(booking => booking.id !== b.id), b]);
         },
         onCancelled: (b) => {
             setBookingRow(prev => prev.filter(booking => booking.id !== b.id));
@@ -31,8 +29,6 @@ export default function AdminPage() {
             setBookingRow(prev => prev.filter(booking => booking.id !== b.id));
         },
     },
-    userId,
-    userRole === "Admin",
 );
 
 

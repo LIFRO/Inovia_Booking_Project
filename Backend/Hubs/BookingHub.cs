@@ -1,14 +1,25 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Backend.Hubs;
 
+[Authorize]
 public class BookingHub : Hub
 {
-    // Klienten anropar denna direkt efter connect för att tala om vem den är
-    public async Task Register(string userId, bool isAdmin)
+    public override async Task OnConnectedAsync()
     {
+        var userId = Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+        {
+            Context.Abort();
+            return;
+        }
+
         await Groups.AddToGroupAsync(Context.ConnectionId, $"user-{userId}");
-        if (isAdmin)
+        if (Context.User!.IsInRole("Admin"))
             await Groups.AddToGroupAsync(Context.ConnectionId, "admins");
+
+        await base.OnConnectedAsync();
     }
 }

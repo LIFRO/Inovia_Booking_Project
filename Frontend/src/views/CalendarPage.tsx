@@ -24,7 +24,7 @@ const stockholmTime = new Intl.DateTimeFormat('sv-SE', {
 })
 
 export default function CalendarPage() {
-  const { userId, userRole } = useAuth()
+  const { userRole } = useAuth()
   const [reserveModel, setReserveModel] = useState<ReserveModel>({
     selectedCategory: 'MeetingRoom',
     selectedDate: todayInStockholm(),
@@ -94,10 +94,13 @@ export default function CalendarPage() {
   }, [])
 
   useBookingEvents({
-    onCreated: booking => setBookings(current => [...current.filter(b => b.id !== booking.id), booking]),
+    onCreated: booking => setBookings(current => current.some(b => b.id === booking.id)
+      ? current
+      : [...current, { ...booking, userId: '', userName: '' }]),
+    onPrivateCreated: booking => setBookings(current => [...current.filter(b => b.id !== booking.id), booking]),
     onCancelled: booking => setBookings(current => current.filter(b => b.id !== booking.id)),
     onDeleted: booking => setBookings(current => current.filter(b => b.id !== booking.id)),
-  }, userId, userRole === 'Admin')
+  })
 
   const filteredCategory = allresources.filter(c => c.type === reserveModel.selectedCategory);
   const resourceId = allresources.find(resource => resource.name === reserveModel.selectedResource)?.id

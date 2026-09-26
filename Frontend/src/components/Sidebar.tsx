@@ -2,6 +2,7 @@ import './CSS/Sidebar.css';
 import logo from '../assets/logo.svg'
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../ts/types/AuthContext';
+import { connection } from '../ts/signalr';
 
 
 interface SideBarProps {
@@ -17,6 +18,7 @@ export default function SideBar({userName}: SideBarProps) {
 
 
     const handleLogout =()=> {
+        void connection.stop();
         localStorage.removeItem("token");
         setUserRole(null);
         setUserId("")
