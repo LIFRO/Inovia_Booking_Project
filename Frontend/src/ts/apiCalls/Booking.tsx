@@ -15,9 +15,10 @@ export async function apiGetAllBookings(): Promise<BookingDto[]> {
 
 export async function apiGetWeeklyTimes(date: string): Promise<WeeklyTimeDto[]> {
     const token = localStorage.getItem("token");
+    if (!token) throw new Error("Sign in to view available times.");
     const response = await axios.get<WeeklyTimeDto[]>("/api/booking/weekly-times", {
         params: { date },
-        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        headers: { Authorization: `Bearer ${token}` },
     });
     return response.data;
 }

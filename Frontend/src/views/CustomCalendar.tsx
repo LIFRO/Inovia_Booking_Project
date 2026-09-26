@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import CancelBookingModal from '../components/CancelBookingModal'
 import { addDays, startOfWeek, todayInStockholm } from '../ts/dateUtils'
+import { nextHour } from '../ts/bookingTimes'
 import type { BookingDto } from '../ts/dto/BookingDto'
 import { useAuth } from '../ts/types/AuthContext'
 import './CSS/CustomCalendar.css'
@@ -11,9 +12,12 @@ interface Props {
   selectedResource: string
   selectedDate: string
   onDateChange: (date: string) => void
+  onTimeSelect: (date: string, time: string) => void
   dayBoundaries: { start: string, end: string }
   bookings: BookingDto[]
-  error: string
+  availableSlotsByDay: Record<string, string[]>
+  availabilityLoading: boolean
+  availabilityError: string
   onBookingCancelled: (id: number) => void
 }
 
@@ -28,7 +32,7 @@ function minutes(time: string): number {
   return Number(time.slice(0, 2)) * 60 + Number(time.slice(3, 5))
 }
 
-export default function CustomCalendar({ selectedResource, selectedDate, onDateChange, dayBoundaries, bookings, error, onBookingCancelled }: Props) {
+export default function CustomCalendar({ selectedResource, selectedDate, onDateChange, onTimeSelect, dayBoundaries, bookings, availableSlotsByDay, availabilityLoading, availabilityError, onBookingCancelled }: Props) {
   const { userId } = useAuth()
   const [view, setView] = useState<View>('week')
   const [selectedBooking, setSelectedBooking] = useState<BookingDto | null>(null)
@@ -90,14 +94,22 @@ export default function CustomCalendar({ selectedResource, selectedDate, onDateC
       </div>
     </header>
 
-    {error && <p className="calendarError" role="alert">{error}</p>}
+    {availabilityError && <p className="calendarError" role="alert">{availabilityError}</p>}
+    {availabilityLoading && <p className="calendarAvailabilityStatus" role="status">Loading available times…</p>}
 
     {view === 'agenda' ? <div className="calendarAgenda">
       {days.map(day => <div className="agendaDay" key={day}>
         <h3>{dateLabel.format(asDate(day))}</h3>
         <div className="agendaBookings">
+          {!availabilityLoading && !availabilityError && (availableSlotsByDay[day] ?? []).map(time =>
+            <button key={time} type="button" className="calendarAvailable" onClick={() => onTimeSelect(day, time)}
+              aria-label={`${day}, ${time} to ${nextHour(time)} available for ${selectedResource}`}>
+              {time}–{nextHour(time)} available
+            </button>
+          )}
           {visibleBookings.filter(booking => booking.date === day).map(booking => bookingItem(booking))}
-          {!visibleBookings.some(booking => booking.date === day) && <p>No bookings</p>}
+          {!availabilityLoading && !availabilityError && !visibleBookings.some(booking => booking.date === day) &&
+            !(availableSlotsByDay[day]?.length) && <p>No available times</p>}
         </div>
       </div>)}
     </div> : <div className="calendarScroll">
@@ -110,6 +122,14 @@ export default function CustomCalendar({ selectedResource, selectedDate, onDateC
           {hours.map(hour => <span key={hour}>{hour}</span>)}
         </div>
         {days.map(day => <div className="calendarDay" key={day} style={{ height: gridHeight }}>
+          {!availabilityLoading && !availabilityError && (availableSlotsByDay[day] ?? []).map(time =>
+            <button key={time} type="button" className="calendarAvailable calendarAvailablePositioned"
+              style={{ top: (minutes(time) - firstMinute) / 60 * 64, height: 64 }}
+              onClick={() => onTimeSelect(day, time)}
+              aria-label={`${day}, ${time} to ${nextHour(time)} available for ${selectedResource}`}>
+              <strong>{time}–{nextHour(time)}</strong><span>Available</span>
+            </button>
+          )}
           {visibleBookings.filter(booking => booking.date === day).map(booking => bookingItem(booking, true))}
         </div>)}
       </div>

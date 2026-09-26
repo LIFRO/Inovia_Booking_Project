@@ -30,6 +30,7 @@
 .calendarNavigation button:hover, .calendarViews button:hover { background: #f1f5f9; }
 .calendarViews button[aria-pressed="true"] { background: #0f766e; border-color: #0f766e; color: white; }
 .calendarError { margin: 12px 16px; color: #b91c1c; }
+.calendarAvailabilityStatus { margin: 12px 16px; color: #475569; }
 
 .calendarScroll { overflow-x: auto; }
 .calendarGrid { display: grid; min-width: 700px; }
@@ -72,6 +73,23 @@ button.calendarBooking:hover { background: #99f6e4; }
 .calendarBooking span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .calendarBookingTaken { border-color: #cbd5e1; background: #e2e8f0; color: #475569; }
 .calendarBookingPositioned { position: absolute; left: 3px; right: 3px; width: calc(100% - 6px); }
+.calendarAvailable {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  padding: 6px 8px;
+  border: 1px solid #86efac;
+  border-radius: 6px;
+  background: #f0fdf4;
+  color: #166534;
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+.calendarAvailable:hover { background: #dcfce7; }
+.calendarAvailablePositioned { position: absolute; left: 3px; right: 3px; width: calc(100% - 6px); overflow: hidden; }
 .calendarAgenda { max-height: 760px; overflow-y: auto; padding: 8px 16px 20px; }
 .agendaDay { padding: 10px 0; border-bottom: 1px solid #e2e8f0; }
 .agendaDay h3 { margin: 0 0 10px; font-size: 15px; text-transform: capitalize; }

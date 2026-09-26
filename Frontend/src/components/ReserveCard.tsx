@@ -15,6 +15,8 @@ interface CategoryProps {
     resources: ResourceDto[],
     filteredCategory: ResourceDto[],
     availableSlots: string[]
+    startTime: string
+    onStartTimeChange: (time: string) => void
     availabilityError: string
     loading: boolean
     onBookingCreated: (booking: BookingDto) => void
@@ -26,6 +28,8 @@ export default function ReserveCard({
     reserveModel, 
     setReserveModel, 
     availableSlots,
+    startTime,
+    onStartTimeChange,
     availabilityError,
     loading,
     onBookingCreated}: CategoryProps) {
@@ -33,12 +37,14 @@ export default function ReserveCard({
     const authContext = useAuth();
     const [errorMessage, setErrorMessage] = useState<string>("");
     const [successMessage, setSuccessMessage] = useState<string>("");
-    const [startTime, setStartTime] = useState('')
-    const [endTime, setEndTime] = useState('')
+    const [endSelection, setEndSelection] = useState({ date: '', resource: '', start: '', end: '' })
 
     const selectedStartTime = availableSlots.includes(startTime) ? startTime : availableSlots[0] ?? ''
     const endOptions = endTimes(selectedStartTime, availableSlots)
-    const selectedEndTime = endOptions.includes(endTime) ? endTime : endOptions[0] ?? ''
+    const selectedEndTime = endSelection.date === reserveModel.selectedDate &&
+        endSelection.resource === reserveModel.selectedResource &&
+        endSelection.start === selectedStartTime && endOptions.includes(endSelection.end)
+        ? endSelection.end : endOptions[0] ?? ''
 
     useEffect(() => {
         if(successMessage !== ""){
@@ -131,7 +137,7 @@ export default function ReserveCard({
                 <label htmlFor="startTime">Start Time</label>
                 <select id='startTime' className='timeValue' value={selectedStartTime}
                     disabled={loading || !!availabilityError || !availableSlots.length}
-                    onChange={(e) => { setStartTime(e.target.value); setEndTime('') }}>
+                    onChange={(e) => onStartTimeChange(e.target.value)}>
                     {!selectedStartTime && <option value="">No times available</option>}
                     {availableSlots.map(time =>
                         <option key={time} value={time}>{time}</option>
@@ -142,7 +148,12 @@ export default function ReserveCard({
                 <label htmlFor="endTime">End Time</label>
                 <select id='endTime' className='timeValue' value={selectedEndTime}
                     disabled={loading || !!availabilityError || !endOptions.length}
-                    onChange={(e) => setEndTime(e.target.value)}>
+                    onChange={(e) => setEndSelection({
+                        date: reserveModel.selectedDate,
+                        resource: reserveModel.selectedResource,
+                        start: selectedStartTime,
+                        end: e.target.value,
+                    })}>
                     {!selectedEndTime && <option value="">No times available</option>}
                     {endOptions.map(time =>
                         <option key={time} value={time}>{time}</option>

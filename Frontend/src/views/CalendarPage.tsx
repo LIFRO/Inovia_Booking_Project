@@ -4,7 +4,7 @@ import CustomCalendar from "./CustomCalendar"
 import './CSS/CalendarPage.css'
 import { apiGetAllResources } from "../ts/apiCalls/Resource";
 import type { ResourceDto } from "../ts/dto/ResourceDTO";
-import { todayInStockholm } from "../ts/dateUtils";
+import { addDays, startOfWeek, todayInStockholm } from "../ts/dateUtils";
 import { freeHours } from "../ts/bookingTimes";
 import { apiGetAllBookings, apiGetWeeklyTimes } from "../ts/apiCalls/Booking";
 import type { BookingDto } from "../ts/dto/BookingDto";
@@ -32,13 +32,15 @@ export default function CalendarPage() {
   });
 
   const [allresources, setAllResources] = useState<ResourceDto[]>([])
+  const [startTime, setStartTime] = useState('')
   const [resourcesLoaded, setResourcesLoaded] = useState(false)
   const [resourceError, setResourceError] = useState('')
   const [bookings, setBookings] = useState<BookingDto[]>([])
   const [bookingsLoaded, setBookingsLoaded] = useState(false)
   const [bookingError, setBookingError] = useState('')
-  const [weeklyTimes, setWeeklyTimes] = useState<{ date: string, times: WeeklyTimeDto[], error: string } | null>(null)
+  const [weeklyTimes, setWeeklyTimes] = useState<{ week: string, times: WeeklyTimeDto[], error: string } | null>(null)
   const [now, setNow] = useState(() => new Date())
+  const selectedWeek = reserveModel.selectedDate ? startOfWeek(reserveModel.selectedDate) : ''
 
   useEffect(() => {
     let active = true
@@ -77,16 +79,15 @@ export default function CalendarPage() {
   }, [])
 
   useEffect(() => {
-    if (!reserveModel.selectedDate) return
+    if (!userRole || !selectedWeek) return
     let active = true
-    const date = reserveModel.selectedDate
-    apiGetWeeklyTimes(date)
-      .then(data => { if (active) setWeeklyTimes({ date, times: data, error: '' }) })
+    apiGetWeeklyTimes(selectedWeek)
+      .then(data => { if (active) setWeeklyTimes({ week: selectedWeek, times: data, error: '' }) })
       .catch(() => {
-        if (active) setWeeklyTimes({ date, times: [], error: 'Could not load available times.' })
+        if (active) setWeeklyTimes({ week: selectedWeek, times: [], error: 'Could not load available times.' })
       })
     return () => { active = false }
-  }, [reserveModel.selectedDate])
+  }, [selectedWeek, userRole])
 
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 60_000)
@@ -106,11 +107,19 @@ export default function CalendarPage() {
   const resourceId = allresources.find(resource => resource.name === reserveModel.selectedResource)?.id
   const today = todayInStockholm()
   const currentTime = stockholmTime.format(now)
-  const selectedSchedule = weeklyTimes?.date === reserveModel.selectedDate ? weeklyTimes : null
-  const availableSlots = freeHours(
-    selectedSchedule?.times ?? [], bookings, reserveModel.selectedDate, resourceId,
-    dayBoundaries.start, dayBoundaries.end, today, currentTime,
-  )
+  const selectedSchedule = userRole && weeklyTimes?.week === selectedWeek ? weeklyTimes : null
+  const availableSlotsByDay = selectedWeek ? Object.fromEntries(
+    Array.from({ length: 7 }, (_, index) => {
+      const date = addDays(selectedWeek, index)
+      return [date, freeHours(
+        selectedSchedule?.times ?? [], bookings, date, resourceId,
+        dayBoundaries.start, dayBoundaries.end, today, currentTime,
+      )]
+    }),
+  ) as Record<string, string[]> : {}
+  const availableSlots = availableSlotsByDay[reserveModel.selectedDate] ?? []
+  const availabilityLoading = !!userRole && !!selectedWeek && (!selectedSchedule || !bookingsLoaded || !resourcesLoaded)
+  const availabilityError = resourceError || selectedSchedule?.error || bookingError
 
 
   return (
@@ -120,9 +129,15 @@ export default function CalendarPage() {
         selectedResource={reserveModel.selectedResource} 
         selectedDate={reserveModel.selectedDate}
         onDateChange={(date) => setReserveModel(model => ({ ...model, selectedDate: date }))}
+        onTimeSelect={(date, time) => {
+          setReserveModel(model => ({ ...model, selectedDate: date }))
+          setStartTime(time)
+        }}
         dayBoundaries={dayBoundaries}
         bookings={bookings}
-        error={bookingError}
+        availableSlotsByDay={availableSlotsByDay}
+        availabilityLoading={availabilityLoading}
+        availabilityError={availabilityError}
         onBookingCancelled={(id) => setBookings(current => current.filter(booking => booking.id !== id))}
       />
       </div>
@@ -134,8 +149,10 @@ export default function CalendarPage() {
           resources={allresources} 
           filteredCategory={filteredCategory} 
           availableSlots={availableSlots}
-          availabilityError={resourceError || selectedSchedule?.error || bookingError}
-          loading={(!!reserveModel.selectedDate && !selectedSchedule) || !bookingsLoaded || !resourcesLoaded}
+          startTime={startTime}
+          onStartTimeChange={setStartTime}
+          availabilityError={availabilityError}
+          loading={availabilityLoading}
           onBookingCreated={(booking) => setBookings(current => [...current.filter(b => b.id !== booking.id), booking])}/>
         </div>
     </div>
