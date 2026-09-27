@@ -26,9 +26,10 @@ const stockholmTime = new Intl.DateTimeFormat('sv-SE', {
 
 export default function CalendarPage() {
   const { userRole } = useAuth()
+  const [initialDate] = useState(todayInStockholm)
   const [reserveModel, setReserveModel] = useState<ReserveModel>({
     selectedCategory: 'MeetingRoom',
-    selectedDate: todayInStockholm(),
+    selectedDate: initialDate,
     selectedResource: 'Mötesrum A'
   });
 
@@ -43,6 +44,7 @@ export default function CalendarPage() {
   const [bookingError, setBookingError] = useState('')
   const [weeklyTimes, setWeeklyTimes] = useState<{ week: string, times: WeeklyTimeDto[], error: string } | null>(null)
   const [now, setNow] = useState(() => new Date())
+  const checkedInitialWeekend = useRef(false)
   const selectedWeek = reserveModel.selectedDate ? startOfWeek(reserveModel.selectedDate) : ''
 
   useEffect(() => {
@@ -131,6 +133,33 @@ export default function CalendarPage() {
   const availableSlots = resourceId === undefined ? [] : availableSlotsByResource[resourceId] ?? []
   const availabilityLoading = !!userRole && !!selectedWeek && (!selectedSchedule || !bookingsLoaded || !resourcesLoaded)
   const availabilityError = resourceError || selectedSchedule?.error || bookingError
+  const initialWeekday = new Date(`${initialDate}T00:00:00Z`).getUTCDay()
+  const remainingWeekendDays = initialWeekday === 6 ? [today, addDays(today, 1)] : [today]
+  const noRemainingTimes = remainingWeekendDays.every(date => availableSlotsByDay[date]?.length === 0)
+
+  useEffect(() => {
+    if (checkedInitialWeekend.current) return
+
+    if (initialWeekday !== 0 && initialWeekday !== 6) {
+      checkedInitialWeekend.current = true
+      return
+    }
+
+    if (reserveModel.selectedDate !== initialDate || today !== initialDate) {
+      checkedInitialWeekend.current = true
+      return
+    }
+    if (availabilityLoading || !selectedSchedule || !resourcesLoaded || !bookingsLoaded) return
+
+    checkedInitialWeekend.current = true
+    if (availabilityError || resourceId === undefined) return
+
+    if (noRemainingTimes) {
+      // Availability arrives asynchronously, so the initial date can only be adjusted after it loads.
+      setReserveModel(model => ({ ...model, selectedDate: addDays(selectedWeek, 7) }))
+    }
+  }, [reserveModel.selectedDate, initialDate, today, availabilityLoading, selectedSchedule, resourcesLoaded,
+    bookingsLoaded, availabilityError, resourceId, initialWeekday, noRemainingTimes, selectedWeek])
 
 
   return (
