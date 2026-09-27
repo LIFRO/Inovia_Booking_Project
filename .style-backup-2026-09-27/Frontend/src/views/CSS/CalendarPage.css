@@ -9,10 +9,10 @@
   padding: 0;
   border: 0;
   border-radius: 14px;
-  box-shadow: 0 20px 48px rgb(15 23 42 / 16%);
+  box-shadow: 0 22px 50px rgb(15 23 42 / 20%);
 }
 
-.reserveDialog::backdrop { background: rgb(15 23 42 / 42%); }
+.reserveDialog::backdrop { background: rgb(15 23 42 / 55%); }
 
 .reserveContent { background: white; padding: 20px; }
 
@@ -21,7 +21,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  border-bottom: 1px solid #e5ebe8;
+  border-bottom: 1px solid rgb(229, 231, 235);
   padding-bottom: 12px;
 }
 

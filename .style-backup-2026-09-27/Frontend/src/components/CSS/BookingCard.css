@@ -1,14 +1,14 @@
 .bookingCard{
-    background-color: #fafcfb;
+    background-color: #f9fafb;
     display: flex;
     justify-content: space-between;
     align-items: center;
     border-radius: 8px;
-    border: 1px solid #e8eeeb;
+    border: 1px solid rgb(229, 231, 235);
     padding: 12px 16px;
 }
 .bookingTitle{
-    color: #27343a;
+    color: black;
     font-size: 14px;
     font-weight: 600;
     margin: 0;

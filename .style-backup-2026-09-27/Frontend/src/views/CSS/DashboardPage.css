@@ -1,13 +1,12 @@
 .overviewCards{
   display: flex;
   flex-direction: row;
-  flex-wrap: wrap;
-  gap: 16px;
+  gap: 50px;
 }
 .recourceCards {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
 }
 .dashboardContent {
   display: flex;
@@ -27,7 +26,7 @@
   flex-shrink: 0;
   background-color: white;
   border-radius: 12px;
-  border: 1px solid #e8eeeb;
+  border: 1px solid rgb(229, 231, 235);
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -35,30 +34,14 @@
 }
 .contentRow{
   display: flex;
-  gap: 24px;
+  gap: 32px;
   flex: 1;
   min-height: 0;
 }
 .bookingsColumn{
-  width: min(35%, 450px);
+  width: 450px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
   gap: 24px;
-}
-
-.bookingOverview h2, .exploreResources h2, .myBookings h2 {
-  color: #27343a;
-  font-size: 1.25rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-}
-
-@media (max-width: 1050px) {
-  .contentRow { flex-direction: column; }
-  .bookingsColumn { width: 100%; }
-}
-
-@media (max-width: 620px) {
-  .recourceCards { grid-template-columns: 1fr; }
 }
