@@ -18,8 +18,8 @@ export type ReserveModel = {
   selectedDate: string
 }
 
-const calendarBoundaries = { start: '00:00', end: '24:00' }
 const bookingBoundaries = { start: '06:00', end: '18:00' }
+const calendarBoundaries = { start: bookingBoundaries.start, end: '24:00' }
 const stockholmTime = new Intl.DateTimeFormat('sv-SE', {
   timeZone: 'Europe/Stockholm', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23'
 })

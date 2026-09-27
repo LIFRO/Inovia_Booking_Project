@@ -46,7 +46,13 @@ export default function CustomCalendar({ selectedResource, selectedDate, onDateC
     .filter(booking => booking.resourceName === selectedResource && days.includes(booking.date))
     .sort((a, b) => `${a.date}${a.startTime}`.localeCompare(`${b.date}${b.startTime}`))
 
-  const firstMinute = minutes(dayBoundaries.start)
+  const visibleStartTimes = [
+    ...days.flatMap(day => availableSlotsByDay[day] ?? []),
+    ...visibleBookings.map(booking => booking.startTime),
+  ]
+  const firstMinute = visibleStartTimes.length
+    ? Math.min(...visibleStartTimes.map(minutes))
+    : minutes(dayBoundaries.start)
   const lastMinute = minutes(dayBoundaries.end)
   const hours = Array.from(
     { length: Math.ceil((lastMinute - firstMinute) / 60) },
