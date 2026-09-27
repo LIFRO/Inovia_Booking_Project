@@ -7,6 +7,7 @@ import { useAuth } from '../ts/types/AuthContext'
 import type { BookingDto } from '../ts/dto/BookingDto'
 import { endTimes } from '../ts/bookingTimes'
 import axios from 'axios'
+import BookingDatePicker from './BookingDatePicker'
 
 
 
@@ -174,11 +175,8 @@ export default function ReserveCard({
                     `${selectedFreeTimes} free ${selectedFreeTimes === 1 ? 'time' : 'times'} for this resource on the selected date.`}
             </p>}
 
-        <label htmlFor="dateValue">Date</label>
-        <input id='dateValue' type="date" className='timeValue' value={reserveModel.selectedDate} onChange={(e) => setReserveModel({
-            ...reserveModel,
-            selectedDate: e.target.value
-        })}/>
+        <BookingDatePicker value={reserveModel.selectedDate}
+            onChange={(date) => setReserveModel(model => ({ ...model, selectedDate: date }))} />
         <div className='timeContent'>
             <div className='timeGroup'>
                 <label htmlFor="startTime">Start Time</label>
