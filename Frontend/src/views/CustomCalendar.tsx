@@ -12,6 +12,7 @@ interface Props {
   selectedResource: string
   selectedDate: string
   onDateChange: (date: string) => void
+  onDaySelect: (date: string) => void
   onTimeSelect: (date: string, time: string) => void
   dayBoundaries: { start: string, end: string }
   bookings: BookingDto[]
@@ -32,7 +33,7 @@ function minutes(time: string): number {
   return Number(time.slice(0, 2)) * 60 + Number(time.slice(3, 5))
 }
 
-export default function CustomCalendar({ selectedResource, selectedDate, onDateChange, onTimeSelect, dayBoundaries, bookings, availableSlotsByDay, availabilityLoading, availabilityError, onBookingCancelled }: Props) {
+export default function CustomCalendar({ selectedResource, selectedDate, onDateChange, onDaySelect, onTimeSelect, dayBoundaries, bookings, availableSlotsByDay, availabilityLoading, availabilityError, onBookingCancelled }: Props) {
   const { userId } = useAuth()
   const [view, setView] = useState<View>('week')
   const [selectedBooking, setSelectedBooking] = useState<BookingDto | null>(null)
@@ -99,7 +100,10 @@ export default function CustomCalendar({ selectedResource, selectedDate, onDateC
 
     {view === 'agenda' ? <div className="calendarAgenda">
       {days.map(day => <div className="agendaDay" key={day}>
-        <h3>{dateLabel.format(asDate(day))}</h3>
+        <h3><button type="button" className={`agendaDayButton${day === selectedDate ? ' selected' : ''}`}
+          onClick={() => onDaySelect(day)} aria-label={`Select ${day} for booking`}>
+          {dateLabel.format(asDate(day))}
+        </button></h3>
         <div className="agendaBookings">
           {!availabilityLoading && !availabilityError && (availableSlotsByDay[day] ?? []).map(time =>
             <button key={time} type="button" className="calendarAvailable" onClick={() => onTimeSelect(day, time)}
@@ -117,11 +121,13 @@ export default function CustomCalendar({ selectedResource, selectedDate, onDateC
         <div className="calendarCorner" />
         {days.map(day => <button key={day} type="button"
           className={`calendarDayHeader${day === selectedDate ? ' selected' : ''}`}
-          onClick={() => onDateChange(day)}>{dateLabel.format(asDate(day))}</button>)}
+          onClick={() => onDaySelect(day)}>{dateLabel.format(asDate(day))}</button>)}
         <div className="calendarHours" style={{ height: gridHeight }}>
           {hours.map(hour => <span key={hour}>{hour}</span>)}
         </div>
-        {days.map(day => <div className="calendarDay" key={day} style={{ height: gridHeight }}>
+        {days.map(day => <div className={`calendarDay${day === selectedDate ? ' selected' : ''}`} key={day} style={{ height: gridHeight }}>
+          <button type="button" className="calendarDaySelect" onClick={() => onDaySelect(day)}
+            aria-label={`Select ${day} for booking`} title={`Book for ${day}`} />
           {!availabilityLoading && !availabilityError && (availableSlotsByDay[day] ?? []).map(time =>
             <button key={time} type="button" className="calendarAvailable calendarAvailablePositioned"
               style={{ top: (minutes(time) - firstMinute) / 60 * 64, height: 64 }}

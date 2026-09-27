@@ -53,6 +53,17 @@
   border-left: 1px solid #e2e8f0;
   background: repeating-linear-gradient(to bottom, transparent 0, transparent 63px, #e2e8f0 63px, #e2e8f0 64px);
 }
+.calendarDay.selected { background-color: #f0fdfa; }
+.calendarDaySelect {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.calendarDaySelect:hover { background: rgb(15 118 110 / 8%); }
+.calendarDaySelect:focus-visible { outline: 2px solid #0f766e; outline-offset: -2px; }
 .calendarBooking {
   display: flex;
   flex-direction: column;
@@ -93,6 +104,17 @@ button.calendarBooking:hover { background: #99f6e4; }
 .calendarAgenda { max-height: 760px; overflow-y: auto; padding: 8px 16px 20px; }
 .agendaDay { padding: 10px 0; border-bottom: 1px solid #e2e8f0; }
 .agendaDay h3 { margin: 0 0 10px; font-size: 15px; text-transform: capitalize; }
+.agendaDayButton {
+  padding: 4px 6px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #334155;
+  font: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+}
+.agendaDayButton:hover, .agendaDayButton.selected { background: #f0fdfa; color: #0f766e; }
 .agendaBookings { display: flex; flex-wrap: wrap; gap: 8px; }
 .agendaBookings .calendarBooking { min-width: 160px; }
 .agendaBookings p { margin: 4px 0; color: #64748b; font-size: 13px; }

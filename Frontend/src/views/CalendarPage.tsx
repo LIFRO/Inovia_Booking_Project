@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ReserveCard from "../components/ReserveCard"
 import CustomCalendar from "./CustomCalendar"
 import './CSS/CalendarPage.css'
@@ -33,6 +33,8 @@ export default function CalendarPage() {
 
   const [allresources, setAllResources] = useState<ResourceDto[]>([])
   const [startTime, setStartTime] = useState('')
+  const [bookingOpen, setBookingOpen] = useState(false)
+  const bookingDialogRef = useRef<HTMLDialogElement>(null)
   const [resourcesLoaded, setResourcesLoaded] = useState(false)
   const [resourceError, setResourceError] = useState('')
   const [bookings, setBookings] = useState<BookingDto[]>([])
@@ -94,6 +96,10 @@ export default function CalendarPage() {
     return () => clearInterval(timer)
   }, [])
 
+  useEffect(() => {
+    if (bookingOpen) bookingDialogRef.current?.showModal()
+  }, [bookingOpen])
+
   useBookingEvents({
     onCreated: booking => setBookings(current => current.some(b => b.id === booking.id)
       ? current
@@ -129,9 +135,15 @@ export default function CalendarPage() {
         selectedResource={reserveModel.selectedResource} 
         selectedDate={reserveModel.selectedDate}
         onDateChange={(date) => setReserveModel(model => ({ ...model, selectedDate: date }))}
+        onDaySelect={(date) => {
+          setReserveModel(model => ({ ...model, selectedDate: date }))
+          setStartTime('')
+          setBookingOpen(true)
+        }}
         onTimeSelect={(date, time) => {
           setReserveModel(model => ({ ...model, selectedDate: date }))
           setStartTime(time)
+          setBookingOpen(true)
         }}
         dayBoundaries={dayBoundaries}
         bookings={bookings}
@@ -141,20 +153,27 @@ export default function CalendarPage() {
         onBookingCancelled={(id) => setBookings(current => current.filter(booking => booking.id !== id))}
       />
       </div>
+      {bookingOpen && <dialog ref={bookingDialogRef} className="reserveDialog"
+        aria-labelledby="reserveDialogTitle" onClose={() => setBookingOpen(false)}
+        onClick={(event) => { if (event.target === event.currentTarget) setBookingOpen(false) }}>
         <div className="reserveContent">
-          <h3 className="reserveTitle">Reserve Resource</h3>
-          <ReserveCard 
-          reserveModel={reserveModel}
-          setReserveModel={setReserveModel}
-          resources={allresources} 
-          filteredCategory={filteredCategory} 
-          availableSlots={availableSlots}
-          startTime={startTime}
-          onStartTimeChange={setStartTime}
-          availabilityError={availabilityError}
-          loading={availabilityLoading}
-          onBookingCreated={(booking) => setBookings(current => [...current.filter(b => b.id !== booking.id), booking])}/>
+          <div className="reserveDialogHeader">
+            <h3 className="reserveTitle" id="reserveDialogTitle">Reserve Resource</h3>
+            <button type="button" className="reserveDialogClose" onClick={() => setBookingOpen(false)} aria-label="Close reservation">×</button>
+          </div>
+          <ReserveCard
+            reserveModel={reserveModel}
+            setReserveModel={setReserveModel}
+            resources={allresources}
+            filteredCategory={filteredCategory}
+            availableSlots={availableSlots}
+            startTime={startTime}
+            onStartTimeChange={setStartTime}
+            availabilityError={availabilityError}
+            loading={availabilityLoading}
+            onBookingCreated={(booking) => setBookings(current => [...current.filter(b => b.id !== booking.id), booking])}/>
         </div>
+      </dialog>}
     </div>
   )
 }
