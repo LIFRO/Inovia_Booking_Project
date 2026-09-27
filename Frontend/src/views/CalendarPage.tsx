@@ -11,6 +11,7 @@ import type { BookingDto } from "../ts/dto/BookingDto";
 import type { WeeklyTimeDto } from "../ts/dto/WeeklyTimeDto";
 import { useBookingEvents } from "../ts/useBookingEvents";
 import { useAuth } from "../ts/types/AuthContext";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export type ReserveModel = {
   selectedCategory: string,
@@ -26,6 +27,8 @@ const stockholmTime = new Intl.DateTimeFormat('sv-SE', {
 
 export default function CalendarPage() {
   const { userRole } = useAuth()
+  const location = useLocation()
+  const navigate = useNavigate()
   const [initialDate] = useState(todayInStockholm)
   const [reserveModel, setReserveModel] = useState<ReserveModel>({
     selectedCategory: 'MeetingRoom',
@@ -35,7 +38,7 @@ export default function CalendarPage() {
 
   const [allresources, setAllResources] = useState<ResourceDto[]>([])
   const [startTime, setStartTime] = useState('')
-  const [bookingOpen, setBookingOpen] = useState(false)
+  const [bookingOpen, setBookingOpen] = useState(() => location.state?.openBooking === true)
   const bookingDialogRef = useRef<HTMLDialogElement>(null)
   const [resourcesLoaded, setResourcesLoaded] = useState(false)
   const [resourceError, setResourceError] = useState('')
@@ -102,6 +105,11 @@ export default function CalendarPage() {
   useEffect(() => {
     if (bookingOpen) bookingDialogRef.current?.showModal()
   }, [bookingOpen])
+
+  function closeBooking() {
+    setBookingOpen(false)
+    if (location.state?.openBooking) navigate('/calendar', { replace: true, state: null })
+  }
 
   useBookingEvents({
     onCreated: booking => setBookings(current => current.some(b => b.id === booking.id)
@@ -188,12 +196,12 @@ export default function CalendarPage() {
       />
       </div>
       {bookingOpen && <dialog ref={bookingDialogRef} className="reserveDialog"
-        aria-labelledby="reserveDialogTitle" onClose={() => setBookingOpen(false)}
-        onClick={(event) => { if (event.target === event.currentTarget) setBookingOpen(false) }}>
+        aria-labelledby="reserveDialogTitle" onClose={closeBooking}
+        onClick={(event) => { if (event.target === event.currentTarget) closeBooking() }}>
         <div className="reserveContent">
           <div className="reserveDialogHeader">
             <h3 className="reserveTitle" id="reserveDialogTitle">Reserve Resource</h3>
-            <button type="button" className="reserveDialogClose" onClick={() => setBookingOpen(false)} aria-label="Close reservation">×</button>
+            <button type="button" className="reserveDialogClose" onClick={closeBooking} aria-label="Close reservation">×</button>
           </div>
           <ReserveCard
             reserveModel={reserveModel}

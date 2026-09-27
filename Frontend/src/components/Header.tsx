@@ -13,7 +13,7 @@ export default function Header({userName}: HeaderProps) {
         <header className='header'>
             <h1>Welcome, {userName}</h1>
             <div className='headerBtn'>
-                <Link to="/calendar" className='bookingBtn'>+ New Booking</Link>
+                <Link to="/calendar" state={{ openBooking: true }} className='bookingBtn'>+ New Booking</Link>
             </div>
         </header>
   )
