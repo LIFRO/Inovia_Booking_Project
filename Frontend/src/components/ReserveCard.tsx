@@ -15,6 +15,7 @@ interface CategoryProps {
     setReserveModel: React.Dispatch<React.SetStateAction<ReserveModel>>
     resources: ResourceDto[],
     filteredCategory: ResourceDto[],
+    availableSlotsByResource: Record<number, string[]>
     availableSlots: string[]
     startTime: string
     onStartTimeChange: (time: string) => void
@@ -26,6 +27,7 @@ interface CategoryProps {
 export default function ReserveCard({
     resources, 
     filteredCategory, 
+    availableSlotsByResource,
     reserveModel, 
     setReserveModel, 
     availableSlots,
@@ -39,10 +41,16 @@ export default function ReserveCard({
     const [errorMessage, setErrorMessage] = useState<string>("");
     const [successMessage, setSuccessMessage] = useState<string>("");
     const [submitting, setSubmitting] = useState(false)
+    const [showAvailableOnly, setShowAvailableOnly] = useState(false)
     const [endSelection, setEndSelection] = useState({ date: '', resource: '', start: '', end: '' })
 
-    const selectedStartTime = availableSlots.includes(startTime) ? startTime : availableSlots[0] ?? ''
-    const endOptions = endTimes(selectedStartTime, availableSlots)
+    const visibleResources = showAvailableOnly
+        ? filteredCategory.filter(resource => (availableSlotsByResource[resource.id]?.length ?? 0) > 0)
+        : filteredCategory
+    const selectedResourceVisible = visibleResources.some(resource => resource.name === reserveModel.selectedResource)
+    const resourceSlots = selectedResourceVisible ? availableSlots : []
+    const selectedStartTime = resourceSlots.includes(startTime) ? startTime : resourceSlots[0] ?? ''
+    const endOptions = endTimes(selectedStartTime, resourceSlots)
     const selectedEndTime = endSelection.date === reserveModel.selectedDate &&
         endSelection.resource === reserveModel.selectedResource &&
         endSelection.start === selectedStartTime && endOptions.includes(endSelection.end)
@@ -72,7 +80,7 @@ export default function ReserveCard({
         return
     }
     
-    const foundResource = filteredCategory.find(resource => resource.name === reserveModel.selectedResource)
+    const foundResource = visibleResources.find(resource => resource.name === reserveModel.selectedResource)
     if(!foundResource)
         return;
 
@@ -102,6 +110,11 @@ export default function ReserveCard({
 
     const categoryFilter = resources.map((c) => c.type);
     const categoryOptions =[...new Set(categoryFilter)]
+    const freeCount = (category: string) => resources.filter(resource =>
+        resource.type === category && (availableSlotsByResource[resource.id]?.length ?? 0) > 0
+    ).length
+    const selectedResource = filteredCategory.find(resource => resource.name === reserveModel.selectedResource)
+    const selectedFreeTimes = selectedResource ? availableSlotsByResource[selectedResource.id]?.length ?? 0 : 0
 
   return (
     <div className='reserveCard'>
@@ -110,7 +123,8 @@ export default function ReserveCard({
             setReserveModel({
                 ...reserveModel,
                 selectedCategory: e.target.value,
-                selectedResource: resources.find((resource => resource.type === e.target.value))?.name ?? ''
+                selectedResource: resources.find(resource => resource.type === e.target.value &&
+                    (!showAvailableOnly || (availableSlotsByResource[resource.id]?.length ?? 0) > 0))?.name ?? ''
             })
         }
         }>
@@ -118,24 +132,47 @@ export default function ReserveCard({
                 categoryOptions.map(cat => (
                     <option 
                     key={cat}
-                    value={cat}>{cat}</option>
+                    value={cat}>{cat}{!loading && !availabilityError
+                        ? ` (${freeCount(cat) === 0 ? 'None available' : `${freeCount(cat)} available`})` : ''}</option>
                 ))
             }
         </select>
 
+        <label className="availabilityFilter">
+            <input type="checkbox" checked={showAvailableOnly} onChange={(e) => {
+                const onlyAvailable = e.target.checked
+                setShowAvailableOnly(onlyAvailable)
+                if (onlyAvailable && !filteredCategory.some(resource =>
+                    resource.name === reserveModel.selectedResource && (availableSlotsByResource[resource.id]?.length ?? 0) > 0)) {
+                    setReserveModel(model => ({ ...model, selectedResource: filteredCategory.find(resource =>
+                        (availableSlotsByResource[resource.id]?.length ?? 0) > 0)?.name ?? '' }))
+                } else if (!onlyAvailable && !reserveModel.selectedResource) {
+                    setReserveModel(model => ({ ...model, selectedResource: filteredCategory[0]?.name ?? '' }))
+                }
+            }} disabled={loading || !!availabilityError} />
+            Show only resources with free times
+        </label>
+
         <label htmlFor="resourceType">Resource</label>
-        <select id='resourceType' className='selectValue' value={reserveModel.selectedResource} onChange={(e) => setReserveModel({
+        <select id='resourceType' className='selectValue' value={selectedResourceVisible ? reserveModel.selectedResource : ''} onChange={(e) => setReserveModel({
             ...reserveModel,
             selectedResource: e.target.value,
         })}>
-         {filteredCategory.map(item => (
+         {!selectedResourceVisible && <option value="">{visibleResources.length ? 'Choose a resource' :
+             showAvailableOnly ? 'No resources with free times' : 'No resources in this category'}</option>}
+         {visibleResources.map(item => (
             <option
             key={item.id}
             value={item.name}
             title={item.name}>
-            {item.name}</option>
+            {item.name}{!loading && !availabilityError ? ` — ${availableSlotsByResource[item.id]?.length ?? 0} free ${availableSlotsByResource[item.id]?.length === 1 ? 'time' : 'times'}` : ''}</option>
          ))}
         </select>
+        {!loading && !availabilityError && selectedResourceVisible &&
+            <p className='availabilityMessage' role="status">
+                {selectedFreeTimes === 0 ? 'No free times for this resource on the selected date.' :
+                    `${selectedFreeTimes} free ${selectedFreeTimes === 1 ? 'time' : 'times'} for this resource on the selected date.`}
+            </p>}
 
         <label htmlFor="dateValue">Date</label>
         <input id='dateValue' type="date" className='timeValue' value={reserveModel.selectedDate} onChange={(e) => setReserveModel({
@@ -146,10 +183,10 @@ export default function ReserveCard({
             <div className='timeGroup'>
                 <label htmlFor="startTime">Start Time</label>
                 <select id='startTime' className='timeValue' value={selectedStartTime}
-                    disabled={loading || !!availabilityError || !availableSlots.length}
+                    disabled={loading || !!availabilityError || !resourceSlots.length}
                     onChange={(e) => onStartTimeChange(e.target.value)}>
                     {!selectedStartTime && <option value="">No times available</option>}
-                    {availableSlots.map(time =>
+                    {resourceSlots.map(time =>
                         <option key={time} value={time}>{time}</option>
                     )}
                 </select>
@@ -171,10 +208,10 @@ export default function ReserveCard({
                 </select>
             </div>
         </div>
-        {(loading || availabilityError || !availableSlots.length) &&
+        {(loading || availabilityError || !selectedResourceVisible) &&
             <p className='availabilityMessage' role="status">
                 {loading ? 'Loading available times…' : availabilityError ||
-                    (!reserveModel.selectedDate ? 'Select a date.' : 'No available times for this day.')}
+                    (!reserveModel.selectedDate ? 'Select a date.' : 'Choose a resource with free times.')}
             </p>}
         <div className='confirmContent'>
         <button type='button' className='confirmBtn' onClick={handleConfirm}

@@ -124,7 +124,11 @@ export default function CalendarPage() {
       )]
     }),
   ) as Record<string, string[]> : {}
-  const availableSlots = availableSlotsByDay[reserveModel.selectedDate] ?? []
+  const availableSlotsByResource = Object.fromEntries(allresources.map(resource => [resource.id, freeHours(
+    selectedSchedule?.times ?? [], bookings, reserveModel.selectedDate, resource.id,
+    bookingBoundaries.start, bookingBoundaries.end, today, currentTime,
+  )])) as Record<number, string[]>
+  const availableSlots = resourceId === undefined ? [] : availableSlotsByResource[resourceId] ?? []
   const availabilityLoading = !!userRole && !!selectedWeek && (!selectedSchedule || !bookingsLoaded || !resourcesLoaded)
   const availabilityError = resourceError || selectedSchedule?.error || bookingError
 
@@ -167,6 +171,7 @@ export default function CalendarPage() {
             setReserveModel={setReserveModel}
             resources={allresources}
             filteredCategory={filteredCategory}
+            availableSlotsByResource={availableSlotsByResource}
             availableSlots={availableSlots}
             startTime={startTime}
             onStartTimeChange={setStartTime}
