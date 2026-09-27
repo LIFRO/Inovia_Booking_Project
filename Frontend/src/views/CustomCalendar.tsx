@@ -116,7 +116,7 @@ export default function CustomCalendar({ selectedResource, selectedDate, onDateC
             !(availableSlotsByDay[day]?.length) && <p>No available times</p>}
         </div>
       </div>)}
-    </div> : <div className="calendarScroll">
+    </div> : <div className="calendarScroll" role="region" aria-label="Calendar time grid" tabIndex={0}>
       <div className="calendarGrid" style={{ gridTemplateColumns: `64px repeat(${days.length}, minmax(120px, 1fr))` }}>
         <div className="calendarCorner" />
         {days.map(day => <button key={day} type="button"
