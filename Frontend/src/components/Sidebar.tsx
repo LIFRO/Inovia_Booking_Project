@@ -13,16 +13,13 @@ interface SideBarProps {
 
 export default function SideBar({userName}: SideBarProps) {
     const navigate = useNavigate()
-    const {userRole, setUserRole, setUserName: setAuthUserName,setUserId} = useAuth();
+    const {userRole, signOut} = useAuth();
     const location = useLocation();
 
 
     const handleLogout =()=> {
         void connection.stop();
-        localStorage.removeItem("token");
-        setUserRole(null);
-        setUserId("")
-        setAuthUserName("");
+        signOut();
         navigate("/login");
     }
 
