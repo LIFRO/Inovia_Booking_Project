@@ -18,7 +18,8 @@ export type ReserveModel = {
   selectedDate: string
 }
 
-const dayBoundaries = { start: '06:00', end: '18:00' }
+const calendarBoundaries = { start: '00:00', end: '24:00' }
+const bookingBoundaries = { start: '06:00', end: '18:00' }
 const stockholmTime = new Intl.DateTimeFormat('sv-SE', {
   timeZone: 'Europe/Stockholm', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23'
 })
@@ -119,7 +120,7 @@ export default function CalendarPage() {
       const date = addDays(selectedWeek, index)
       return [date, freeHours(
         selectedSchedule?.times ?? [], bookings, date, resourceId,
-        dayBoundaries.start, dayBoundaries.end, today, currentTime,
+        bookingBoundaries.start, bookingBoundaries.end, today, currentTime,
       )]
     }),
   ) as Record<string, string[]> : {}
@@ -145,7 +146,7 @@ export default function CalendarPage() {
           setStartTime(time)
           setBookingOpen(true)
         }}
-        dayBoundaries={dayBoundaries}
+        dayBoundaries={calendarBoundaries}
         bookings={bookings}
         availableSlotsByDay={availableSlotsByDay}
         availabilityLoading={availabilityLoading}
