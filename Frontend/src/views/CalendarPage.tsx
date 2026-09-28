@@ -214,7 +214,10 @@ export default function CalendarPage() {
             onStartTimeChange={setStartTime}
             availabilityError={availabilityError}
             loading={availabilityLoading}
-            onBookingCreated={(booking) => setBookings(current => [...current.filter(b => b.id !== booking.id), booking])}/>
+            onBookingCreated={(booking) => {
+              setBookings(current => [...current.filter(b => b.id !== booking.id), booking])
+              closeBooking()
+            }}/>
         </div>
       </dialog>}
     </div>

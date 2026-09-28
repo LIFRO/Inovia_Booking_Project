@@ -40,7 +40,6 @@ export default function ReserveCard({
     
     const authContext = useAuth();
     const [errorMessage, setErrorMessage] = useState<string>("");
-    const [successMessage, setSuccessMessage] = useState<string>("");
     const [submitting, setSubmitting] = useState(false)
     const [showAvailableOnly, setShowAvailableOnly] = useState(false)
     const [endSelection, setEndSelection] = useState({ date: '', resource: '', start: '', end: '' })
@@ -58,12 +57,6 @@ export default function ReserveCard({
         ? endSelection.end : endOptions[0] ?? ''
 
     useEffect(() => {
-        if(successMessage !== ""){
-            const timerSuccess = setTimeout(() => (setSuccessMessage("")),3000)
-            return () => {
-                clearTimeout(timerSuccess)
-            }
-        }
         if(errorMessage !== ""){
             const timerError = setTimeout(() => (setErrorMessage("")),3000)
             return () => {
@@ -71,13 +64,12 @@ export default function ReserveCard({
             }
         }
 
-    },[successMessage, errorMessage])
+    },[errorMessage])
 
     async function handleConfirm(){
     if (submitting) return
     if(!reserveModel.selectedDate || !selectedStartTime || !selectedEndTime || loading || availabilityError){
         setErrorMessage("Please fill in all fields")
-        setSuccessMessage("");
         return
     }
     
@@ -95,10 +87,7 @@ export default function ReserveCard({
             resourceId: foundResource.id
         })
         onBookingCreated(booking)
-        setErrorMessage("");
-        setSuccessMessage("Booking Confirmed");
     } catch (error) {
-        setSuccessMessage("");
         const serverMessage = axios.isAxiosError(error) && typeof error.response?.data === 'string'
             ? error.response.data : ''
         setErrorMessage(serverMessage || (axios.isAxiosError(error) && error.response?.status === 401
@@ -215,10 +204,9 @@ export default function ReserveCard({
         <button type='button' className='confirmBtn' onClick={handleConfirm}
             disabled={loading || submitting || !!availabilityError || !selectedEndTime}>{submitting ? 'Booking…' : '+ Confirm Booking'}</button>
         </div>
-        {(successMessage || errorMessage) && (
+        {errorMessage && (
         <div className='toast'>
-            {errorMessage && <p className='errorText'>{errorMessage}</p>}
-            {successMessage && <p className='successText'>{successMessage}</p>}
+            <p className='errorText'>{errorMessage}</p>
         </div>
         )}
     </div>
