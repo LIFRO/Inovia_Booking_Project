@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type TouchEvent } from 'react'
+import { useEffect, useRef, useState, type CSSProperties, type TouchEvent } from 'react'
 import CancelBookingModal from '../components/CancelBookingModal'
 import { addDays, startOfWeek, todayInStockholm } from '../ts/dateUtils'
 import { nextHour } from '../ts/bookingTimes'
@@ -38,6 +38,8 @@ export default function CustomCalendar({ selectedResource, selectedDate, onDateC
   const [isPhone, setIsPhone] = useState(() => window.matchMedia('(max-width: 760px)').matches)
   const [view, setView] = useState<View>('week')
   const [selectedBooking, setSelectedBooking] = useState<BookingDto | null>(null)
+  const calendarScrollRef = useRef<HTMLDivElement>(null)
+  const [scrollHeight, setScrollHeight] = useState(0)
   const swipeStart = useRef<{ x: number, y: number } | null>(null)
   const pinchStart = useRef<number | null>(null)
   const pinchDistance = useRef<number | null>(null)
@@ -48,6 +50,15 @@ export default function CustomCalendar({ selectedResource, selectedDate, onDateC
     query.addEventListener('change', onChange)
     return () => query.removeEventListener('change', onChange)
   }, [])
+
+  useEffect(() => {
+    const scroll = calendarScrollRef.current
+    if (!scroll) return
+
+    const observer = new ResizeObserver(([entry]) => setScrollHeight(entry.contentRect.height))
+    observer.observe(scroll)
+    return () => observer.disconnect()
+  }, [view])
 
   const weekStart = startOfWeek(selectedDate || todayInStockholm())
   const weekDays = Array.from({ length: 7 }, (_, index) => addDays(weekStart, index))
@@ -70,7 +81,10 @@ export default function CustomCalendar({ selectedResource, selectedDate, onDateC
     { length: Math.ceil((lastMinute - firstMinute) / 60) },
     (_, index) => `${String(Math.floor(firstMinute / 60) + index).padStart(2, '0')}:00`,
   )
-  const gridHeight = (lastMinute - firstMinute) / 60 * 64
+  const hourHeight = scrollHeight
+    ? Math.max(44, (scrollHeight - 52) / hours.length)
+    : 64
+  const gridHeight = hours.length * hourHeight
 
   function move(amount: number) {
     onDateChange(addDays(selectedDate || todayInStockholm(), amount * (view === 'day' ? 1 : 7)))
@@ -113,6 +127,8 @@ export default function CustomCalendar({ selectedResource, selectedDate, onDateC
     const start = swipeStart.current
     swipeStart.current = null
     if (!start || !isPhone) return
+    const scroll = event.currentTarget
+    if (scroll.classList.contains('calendarScroll') && scroll.scrollWidth > scroll.clientWidth) return
     const touch = event.changedTouches[0]
     const horizontal = touch.clientX - start.x
     const vertical = touch.clientY - start.y
@@ -138,7 +154,7 @@ export default function CustomCalendar({ selectedResource, selectedDate, onDateC
       <span>{booking.resourceName}</span>
     </>
     const className = `calendarBooking${own ? '' : ' calendarBookingTaken'}${positioned ? ' calendarBookingPositioned' : ''}`
-    const style = positioned ? { top: (start - firstMinute) / 60 * 64, height: (end - start) / 60 * 64 } : undefined
+    const style = positioned ? { top: (start - firstMinute) / 60 * hourHeight, height: (end - start) / 60 * hourHeight } : undefined
 
     return own
       ? <button key={booking.id} type="button" className={className} style={style}
@@ -167,23 +183,7 @@ export default function CustomCalendar({ selectedResource, selectedDate, onDateC
     {availabilityError && <p className="calendarError" role="alert">{availabilityError}</p>}
     {availabilityLoading && <p className="calendarAvailabilityStatus" role="status">Loading available times…</p>}
 
-    {isPhone && view === 'week' ? <div className="calendarMobileWeek" aria-label="Week overview"
-      onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} onTouchCancel={handleTouchCancel}>
-      {weekDays.map(day => {
-        const freeCount = availableSlotsByDay[day]?.length ?? 0
-        const bookedCount = visibleBookings.filter(booking => booking.date === day).length
-        return <button key={day} type="button" className={`calendarWeekRow${day === selectedDate ? ' selected' : ''}`}
-          onClick={() => { onDateChange(day); setView('day') }}
-          aria-label={`${dateLabel.format(asDate(day))}: ${freeCount} free times, ${bookedCount} bookings. View day`}>
-          <span className="calendarWeekDate">{dateLabel.format(asDate(day))}</span>
-          <span className="calendarWeekCounts">
-            {availabilityLoading ? 'Loading…' : availabilityError ? 'Unavailable' : `${freeCount} free · ${bookedCount} booked`}
-          </span>
-          <span className="calendarWeekArrow" aria-hidden="true">›</span>
-        </button>
-      })}
-      <p className="calendarGestureHint">Pinch out for a day · Swipe right for next week</p>
-    </div> : view === 'agenda' ? <div className="calendarAgenda"
+    {view === 'agenda' ? <div className="calendarAgenda"
       onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} onTouchCancel={handleTouchCancel}>
       {days.map(day => <div className="agendaDay" key={day}>
         <h3><button type="button" className={`agendaDayButton${day === selectedDate ? ' selected' : ''}`}
@@ -202,9 +202,16 @@ export default function CustomCalendar({ selectedResource, selectedDate, onDateC
             !(availableSlotsByDay[day]?.length) && <p>No available times</p>}
         </div>
       </div>)}
-    </div> : <div className="calendarScroll" role="region" aria-label="Calendar time grid" tabIndex={0}
+    </div> : <div className="calendarScroll" ref={calendarScrollRef} role="region" aria-label="Calendar time grid" tabIndex={0}
+      onWheel={event => {
+        const scroll = event.currentTarget
+        if (scroll.scrollHeight <= scroll.clientHeight + 4 && scroll.scrollWidth > scroll.clientWidth &&
+          Math.abs(event.deltaY) > Math.abs(event.deltaX)) {
+          scroll.scrollLeft += event.deltaY
+        }
+      }}
       onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} onTouchCancel={handleTouchCancel}>
-      <div className="calendarGrid" data-view={view} style={{ gridTemplateColumns: `64px repeat(${days.length}, minmax(120px, 1fr))` }}>
+      <div className="calendarGrid" data-view={view} style={{ gridTemplateColumns: `64px repeat(${days.length}, minmax(120px, 1fr))`, '--calendar-hour-height': `${hourHeight}px` } as CSSProperties}>
         <div className="calendarCorner" />
         {days.map(day => <button key={day} type="button"
           className={`calendarDayHeader${day === selectedDate ? ' selected' : ''}`}
@@ -217,7 +224,7 @@ export default function CustomCalendar({ selectedResource, selectedDate, onDateC
             aria-label={`Select ${day} for booking`} title={`Book for ${day}`} />
           {!availabilityLoading && !availabilityError && (availableSlotsByDay[day] ?? []).map(time =>
             <button key={time} type="button" className="calendarAvailable calendarAvailablePositioned"
-              style={{ top: (minutes(time) - firstMinute) / 60 * 64, height: 64 }}
+              style={{ top: (minutes(time) - firstMinute) / 60 * hourHeight, height: hourHeight }}
               onClick={() => onTimeSelect(day, time)}
               aria-label={`${day}, ${time} to ${nextHour(time)} available for ${selectedResource}`}>
               <strong>{time}–{nextHour(time)}</strong><span>Available</span>

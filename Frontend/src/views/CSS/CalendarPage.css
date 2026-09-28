@@ -1,5 +1,5 @@
 
-.calendarContent { margin-top: 0; }
+.calendarContent { display: flex; flex: 1; flex-direction: column; min-height: 0; margin-top: 0; }
 
 .bookingConfirmation {
   position: fixed;
@@ -46,7 +46,7 @@
 
 .bookingConfirmationClose:focus-visible { outline: 2px solid #15803d; outline-offset: 2px; }
 
-.calendarWrapper { min-width: 0; }
+.calendarWrapper { flex: 1; min-width: 0; min-height: 0; }
 
 .reserveDialog {
   width: min(440px, calc(100% - 32px));

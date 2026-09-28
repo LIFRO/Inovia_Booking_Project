@@ -15,7 +15,7 @@ export default function MainLayout() {
 
 
   return (
-    <div className="dashboardMain">
+    <div className={location.pathname === '/calendar' ? 'dashboardMain calendarLayout' : 'dashboardMain'}>
         <SideBar userName={userName} />
         <div className="mainContent">
             {location.pathname !== '/calendar' && location.pathname !== '/admin' && <Header userName={userName}/>}
