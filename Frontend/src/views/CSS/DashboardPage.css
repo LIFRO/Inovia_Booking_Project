@@ -55,16 +55,14 @@
 }
 
 @media (max-width: 1050px) {
-  .contentRow { flex-direction: column; }
-  .bookingsColumn { width: 100%; }
+  .dashboardContent { display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; }
+  .contentRow { display: contents; }
+  .bookingsColumn { order: 0; width: 100%; }
+  .bookingOverview { order: 1; }
+  .exploreResources { order: 2; }
 }
 
 @media (max-width: 620px) {
-  .dashboardContent { display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; }
-  .contentRow { display: contents; }
-  .bookingsColumn { order: 0; }
-  .bookingOverview { order: 1; }
-  .exploreResources { order: 2; }
   .recourceCards { grid-template-columns: 1fr; }
   .overviewCards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .bookingsColumn { gap: 16px; }
