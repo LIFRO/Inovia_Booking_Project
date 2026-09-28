@@ -14,6 +14,6 @@
 }
 
 @media (max-width: 760px) {
-    .dashboardMain { height: auto; min-height: 100vh; overflow: visible; flex-direction: column; }
-    .mainContent { padding: 20px; }
+    .dashboardMain { height: auto; min-height: 100dvh; overflow: visible; flex-direction: column; }
+    .mainContent { min-width: 0; padding: 16px; gap: 16px; }
 }

@@ -85,11 +85,11 @@ const filteredBookings = bookingRow.filter(booking => {
         />
         </div>
        <div className='filterStatus'>
-        <input type="text" className='filterControl'  placeholder='Search Employee or Room' value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}/>
-        <input type="date" value={startDate ?? ""} onChange={(e) => setStartDate(e.target.value)} className='filterControl'/>
-        <input type="date" value={endDate ?? ""} onChange={(e) => setEndDate(e.target.value)} className='filterControl'/>
+        <input type="text" className='filterControl' aria-label="Search employee or room" placeholder='Search Employee or Room' value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}/>
+        <input type="date" aria-label="Start date" value={startDate ?? ""} onChange={(e) => setStartDate(e.target.value)} className='filterControl'/>
+        <input type="date" aria-label="End date" value={endDate ?? ""} onChange={(e) => setEndDate(e.target.value)} className='filterControl'/>
        </div>
-       <table>
+       <table className="adminBookingsTable">
         <thead>
             <tr>
             <th>EMPLOYEE</th>

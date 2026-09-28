@@ -26,3 +26,10 @@
     font-weight: 600;
     font-size: 13px;
 }
+
+@media (max-width: 480px) {
+    .bookingCard { gap: 12px; }
+    .bookingCard > div { min-width: 0; }
+    .bookingTitle { overflow-wrap: anywhere; }
+    .cancelBtn { min-height: 44px; flex: 0 0 auto; }
+}

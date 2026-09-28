@@ -35,3 +35,9 @@
   line-height: 1;
   cursor: pointer;
 }
+
+@media (max-width: 760px) {
+  .reserveDialog { width: calc(100% - 24px); max-height: calc(100dvh - 24px); }
+  .reserveContent { max-height: calc(100dvh - 24px); overflow-y: auto; padding: 16px; }
+  .reserveDialogClose { min-width: 44px; min-height: 44px; }
+}

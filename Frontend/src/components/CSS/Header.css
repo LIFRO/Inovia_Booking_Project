@@ -21,3 +21,10 @@
 }
 .bookingBtn:hover { background-color: #0b776d; }
 .bookingBtn:active { transform: translateY(1px); }
+
+@media (max-width: 620px) {
+  .header { flex-wrap: wrap; gap: 12px; padding: 0 0 16px; }
+  .header h1 { margin: 0; font-size: clamp(20px, 6vw, 28px); overflow-wrap: anywhere; }
+  .headerBtn, .bookingBtn { width: 100%; }
+  .bookingBtn { min-height: 44px; text-align: center; }
+}

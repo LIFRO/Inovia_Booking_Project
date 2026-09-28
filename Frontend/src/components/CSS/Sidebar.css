@@ -73,18 +73,20 @@
   .sidebar {
     width: 100%;
     height: auto;
-    flex-direction: row;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 8px 16px;
-    padding: 12px 20px;
+    gap: 8px;
+    padding: 8px 16px;
     border-right: 0;
     border-bottom: 1px solid #e5ebe8;
   }
-  .sidebarLogo { width: 120px; margin: 0; }
-  .sidebar nav ul { flex-direction: row; flex-wrap: wrap; }
-  .sidebar nav li { width: auto; }
-  .logoutContainer { margin: 0 0 0 auto; }
-  .sidebarUser { width: auto; margin: 0; border: 0; }
-  .sidebarUser h3 { margin: 0; font-size: 14px; font-weight: 500; }
+  .sidebarLogo { width: 110px; margin: 0; }
+  .sidebar nav { grid-column: 1 / -1; grid-row: 2; min-width: 0; }
+  .sidebar nav ul { flex-direction: row; gap: 4px; }
+  .sidebar nav li { width: auto; flex: 1; }
+  .sidebarLink { padding: 10px 4px; min-height: 44px; text-align: center; border-radius: 8px; font-size: 14px; }
+  .logoutContainer { grid-column: 2; grid-row: 1; margin: 0; }
+  .logoutBtn { min-height: 44px; padding: 8px 12px; font-size: 14px; }
+  .sidebarUser { display: none; }
 }

@@ -124,7 +124,42 @@ button.calendarBooking:hover { background: #99f6e4; }
 .agendaBookings { display: flex; flex-wrap: wrap; gap: 8px; }
 .agendaBookings .calendarBooking { min-width: 160px; }
 .agendaBookings p { margin: 4px 0; color: #64748b; font-size: 13px; }
+.calendarMobileWeek { display: none; }
 
 @media (max-width: 1100px) {
   .calendarHeader { justify-content: center; }
+}
+
+@media (max-width: 760px) {
+  .calendarHeader { justify-content: space-between; padding: 12px; }
+  .calendarHeader h2 { order: -1; width: 100%; font-size: 17px; text-align: center; }
+  .calendarNavigation, .calendarViews { flex: 0 1 auto; }
+  .calendarNavigation button, .calendarViews button { min-width: 36px; min-height: 44px; padding: 8px; }
+  .calendarMobileWeek { display: grid; gap: 4px; padding: 8px 12px 12px; touch-action: pan-y; }
+  .calendarWeekRow {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto 16px;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 48px;
+    padding: 7px 10px;
+    border: 1px solid #e5ebe8;
+    border-radius: 8px;
+    background: white;
+    color: #334155;
+    text-align: left;
+    cursor: pointer;
+  }
+  .calendarWeekRow.selected { border-color: #0f766e; background: #f0fdfa; }
+  .calendarWeekRow:focus-visible { outline: 2px solid #0f766e; outline-offset: 2px; }
+  .calendarWeekDate { font-weight: 600; text-transform: capitalize; }
+  .calendarWeekCounts { color: #475569; font-size: 12px; white-space: nowrap; }
+  .calendarWeekArrow { color: #0f766e; font-size: 22px; }
+  .calendarGestureHint { margin: 4px 0 0; color: #64748b; font-size: 12px; text-align: center; }
+  .calendarScroll { max-height: min(70dvh, 650px); overflow-x: hidden; touch-action: pan-y; }
+  .calendarGrid[data-view="day"] { min-width: 0; }
+  .calendarAgenda { padding: 8px 12px 16px; touch-action: pan-y; }
+  .agendaBookings { flex-direction: column; }
+  .agendaBookings .calendarBooking, .agendaBookings .calendarAvailable { width: 100%; min-height: 44px; }
 }

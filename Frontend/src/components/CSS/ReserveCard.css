@@ -45,6 +45,13 @@
   flex: 1;
   gap: 4px;
 }
+@media (max-width: 480px) {
+  .reserveCard { padding: 12px 0; }
+  .timeContent { flex-direction: column; }
+  .input, .selectValue, .timeValue { min-height: 44px; font-size: 16px; }
+  .timeGroup { min-width: 0; }
+  .confirmBtn { min-height: 44px; }
+}
 label{
     margin: 0;
     color: rgb(107, 106, 106);

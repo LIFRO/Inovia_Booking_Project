@@ -15,16 +15,16 @@ export default function BookingSummary({id, userName, date, startTime, endTime, 
   
     return (
         <tr className='SummaryCard'>
-            <td>    
+            <td data-label="Employee">
                 <div className="employeeEmail">{userName}</div></td>
-            <td>{date}</td>
-            <td>{startTime} - {endTime}</td>
-            <td>
+            <td data-label="Booking date">{date}</td>
+            <td data-label="Time slot">{startTime} - {endTime}</td>
+            <td data-label="Resource">
                 <span className='resourceBooked'>{resourceName}</span></td>
-            <td>
+            <td data-label="Status">
                 <span className="statusBooked">Booked</span>
             </td>
-            <td><button type='button' onClick={() => onDelete(id)} className='deleteBtn'>Delete</button></td>
+            <td data-label="Actions"><button type='button' onClick={() => onDelete(id)} className='deleteBtn'>Delete</button></td>
         </tr>
 
   )

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState, type TouchEvent } from 'react'
 import CancelBookingModal from '../components/CancelBookingModal'
 import { addDays, startOfWeek, todayInStockholm } from '../ts/dateUtils'
 import { nextHour } from '../ts/bookingTimes'
@@ -35,13 +35,25 @@ function minutes(time: string): number {
 
 export default function CustomCalendar({ selectedResource, selectedDate, onDateChange, onDaySelect, onTimeSelect, dayBoundaries, bookings, availableSlotsByDay, availabilityLoading, availabilityError, onBookingCancelled }: Props) {
   const { userId } = useAuth()
+  const [isPhone, setIsPhone] = useState(() => window.matchMedia('(max-width: 760px)').matches)
   const [view, setView] = useState<View>('week')
   const [selectedBooking, setSelectedBooking] = useState<BookingDto | null>(null)
+  const swipeStart = useRef<{ x: number, y: number } | null>(null)
+  const pinchStart = useRef<number | null>(null)
+  const pinchDistance = useRef<number | null>(null)
+
+  useEffect(() => {
+    const query = window.matchMedia('(max-width: 760px)')
+    const onChange = (event: MediaQueryListEvent) => setIsPhone(event.matches)
+    query.addEventListener('change', onChange)
+    return () => query.removeEventListener('change', onChange)
+  }, [])
 
   const weekStart = startOfWeek(selectedDate || todayInStockholm())
+  const weekDays = Array.from({ length: 7 }, (_, index) => addDays(weekStart, index))
   const days = view === 'day'
     ? [selectedDate || todayInStockholm()]
-    : Array.from({ length: 7 }, (_, index) => addDays(weekStart, index))
+    : weekDays
   const visibleBookings = bookings
     .filter(booking => booking.resourceName === selectedResource && days.includes(booking.date))
     .sort((a, b) => `${a.date}${a.startTime}`.localeCompare(`${b.date}${b.startTime}`))
@@ -62,6 +74,57 @@ export default function CustomCalendar({ selectedResource, selectedDate, onDateC
 
   function move(amount: number) {
     onDateChange(addDays(selectedDate || todayInStockholm(), amount * (view === 'day' ? 1 : 7)))
+  }
+
+  function touchDistance(event: TouchEvent) {
+    const [first, second] = [event.touches[0], event.touches[1]]
+    return Math.hypot(second.clientX - first.clientX, second.clientY - first.clientY)
+  }
+
+  function handleTouchStart(event: TouchEvent) {
+    if (!isPhone) return
+    if (event.touches.length >= 2) {
+      pinchStart.current = touchDistance(event)
+      pinchDistance.current = pinchStart.current
+      swipeStart.current = null
+      return
+    }
+    const touch = event.touches[0]
+    swipeStart.current = { x: touch.clientX, y: touch.clientY }
+  }
+
+  function handleTouchMove(event: TouchEvent) {
+    if (pinchStart.current !== null && event.touches.length >= 2) {
+      pinchDistance.current = touchDistance(event)
+    }
+  }
+
+  function handleTouchEnd(event: TouchEvent) {
+    if (pinchStart.current !== null) {
+      if (event.touches.length < 2) {
+        const ratio = (pinchDistance.current ?? pinchStart.current) / pinchStart.current
+        if (ratio > 1.2) setView('day')
+        if (ratio < 0.8) setView('week')
+        pinchStart.current = null
+        pinchDistance.current = null
+      }
+      return
+    }
+    const start = swipeStart.current
+    swipeStart.current = null
+    if (!start || !isPhone) return
+    const touch = event.changedTouches[0]
+    const horizontal = touch.clientX - start.x
+    const vertical = touch.clientY - start.y
+    if (Math.abs(horizontal) < 50 || Math.abs(horizontal) <= Math.abs(vertical) * 1.25) return
+    const amount = view === 'day' ? 1 : 7
+    onDateChange(addDays(selectedDate || todayInStockholm(), horizontal > 0 ? amount : -amount))
+  }
+
+  function handleTouchCancel() {
+    swipeStart.current = null
+    pinchStart.current = null
+    pinchDistance.current = null
   }
 
   function bookingItem(booking: BookingDto, positioned = false) {
@@ -92,7 +155,7 @@ export default function CustomCalendar({ selectedResource, selectedDate, onDateC
         <button type="button" onClick={() => onDateChange(todayInStockholm())}>Today</button>
         <button type="button" onClick={() => move(1)} aria-label="Next period">›</button>
       </div>
-      <h2>{view === 'day' ? dateLabel.format(asDate(days[0])) : `${dateLabel.format(asDate(days[0]))} – ${dateLabel.format(asDate(days[6]))}`}</h2>
+      <h2>{view === 'day' ? dateLabel.format(asDate(days[0])) : `${dateLabel.format(asDate(weekDays[0]))} – ${dateLabel.format(asDate(weekDays[6]))}`}</h2>
       <div className="calendarViews" aria-label="Calendar view">
         {(['week', 'day', 'agenda'] as const).map(option =>
           <button key={option} type="button" aria-pressed={view === option}
@@ -104,7 +167,24 @@ export default function CustomCalendar({ selectedResource, selectedDate, onDateC
     {availabilityError && <p className="calendarError" role="alert">{availabilityError}</p>}
     {availabilityLoading && <p className="calendarAvailabilityStatus" role="status">Loading available times…</p>}
 
-    {view === 'agenda' ? <div className="calendarAgenda">
+    {isPhone && view === 'week' ? <div className="calendarMobileWeek" aria-label="Week overview"
+      onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} onTouchCancel={handleTouchCancel}>
+      {weekDays.map(day => {
+        const freeCount = availableSlotsByDay[day]?.length ?? 0
+        const bookedCount = visibleBookings.filter(booking => booking.date === day).length
+        return <button key={day} type="button" className={`calendarWeekRow${day === selectedDate ? ' selected' : ''}`}
+          onClick={() => { onDateChange(day); setView('day') }}
+          aria-label={`${dateLabel.format(asDate(day))}: ${freeCount} free times, ${bookedCount} bookings. View day`}>
+          <span className="calendarWeekDate">{dateLabel.format(asDate(day))}</span>
+          <span className="calendarWeekCounts">
+            {availabilityLoading ? 'Loading…' : availabilityError ? 'Unavailable' : `${freeCount} free · ${bookedCount} booked`}
+          </span>
+          <span className="calendarWeekArrow" aria-hidden="true">›</span>
+        </button>
+      })}
+      <p className="calendarGestureHint">Pinch out for a day · Swipe right for next week</p>
+    </div> : view === 'agenda' ? <div className="calendarAgenda"
+      onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} onTouchCancel={handleTouchCancel}>
       {days.map(day => <div className="agendaDay" key={day}>
         <h3><button type="button" className={`agendaDayButton${day === selectedDate ? ' selected' : ''}`}
           onClick={() => onDaySelect(day)} aria-label={`Select ${day} for booking`}>
@@ -122,8 +202,9 @@ export default function CustomCalendar({ selectedResource, selectedDate, onDateC
             !(availableSlotsByDay[day]?.length) && <p>No available times</p>}
         </div>
       </div>)}
-    </div> : <div className="calendarScroll" role="region" aria-label="Calendar time grid" tabIndex={0}>
-      <div className="calendarGrid" style={{ gridTemplateColumns: `64px repeat(${days.length}, minmax(120px, 1fr))` }}>
+    </div> : <div className="calendarScroll" role="region" aria-label="Calendar time grid" tabIndex={0}
+      onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} onTouchCancel={handleTouchCancel}>
+      <div className="calendarGrid" data-view={view} style={{ gridTemplateColumns: `64px repeat(${days.length}, minmax(120px, 1fr))` }}>
         <div className="calendarCorner" />
         {days.map(day => <button key={day} type="button"
           className={`calendarDayHeader${day === selectedDate ? ' selected' : ''}`}
@@ -146,6 +227,8 @@ export default function CustomCalendar({ selectedResource, selectedDate, onDateC
         </div>)}
       </div>
     </div>}
+
+    {isPhone && view === 'day' && <p className="calendarGestureHint">Pinch in for the week · Swipe right for next day</p>}
 
     {selectedBooking && <CancelBookingModal booking={selectedBooking}
       onClose={() => setSelectedBooking(null)}

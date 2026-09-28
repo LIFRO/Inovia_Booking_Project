@@ -170,4 +170,7 @@
   .loginCard {
     padding: 28px 22px;
   }
+
+  .loginField input { font-size: 16px; }
+  .actionBtns { flex-wrap: wrap; gap: 12px; }
 }

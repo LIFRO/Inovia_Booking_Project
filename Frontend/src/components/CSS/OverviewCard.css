@@ -28,3 +28,9 @@
     color: grey;
     font-size: small;
 }
+
+@media (max-width: 620px) {
+    .overviewCard { max-width: none; min-width: 0; padding: 14px; }
+    .overviewCardTitle { font-size: 14px; overflow-wrap: anywhere; }
+    .overviewCardValue { font-size: 26px; }
+}
