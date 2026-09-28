@@ -1,9 +1,3 @@
-.overviewCards{
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 16px;
-}
 .recourceCards {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -47,7 +41,7 @@
   gap: 24px;
 }
 
-.bookingOverview h2, .exploreResources h2, .myBookings h2 {
+.exploreResources h2, .myBookings h2 {
   color: #27343a;
   font-size: 1.25rem;
   font-weight: 600;
@@ -58,13 +52,11 @@
   .dashboardContent { display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; }
   .contentRow { display: contents; }
   .bookingsColumn { order: 0; width: 100%; }
-  .bookingOverview { order: 1; }
   .exploreResources { order: 2; }
 }
 
 @media (max-width: 620px) {
   .recourceCards { grid-template-columns: 1fr; }
-  .overviewCards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .bookingsColumn { gap: 16px; }
   .myBookings, .pastBookings { padding: 16px; }
 }

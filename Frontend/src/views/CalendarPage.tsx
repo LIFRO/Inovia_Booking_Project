@@ -29,11 +29,12 @@ export default function CalendarPage() {
   const { userRole } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
+  const requestedCategory = new URLSearchParams(location.search).get('category') || 'MeetingRoom'
   const [initialDate] = useState(todayInStockholm)
   const [reserveModel, setReserveModel] = useState<ReserveModel>({
-    selectedCategory: 'MeetingRoom',
+    selectedCategory: requestedCategory,
     selectedDate: initialDate,
-    selectedResource: 'Mötesrum A'
+    selectedResource: ''
   });
 
   const [allresources, setAllResources] = useState<ResourceDto[]>([])
@@ -57,6 +58,13 @@ export default function CalendarPage() {
       .then(data => {
         if (active) {
           setAllResources(data)
+          setReserveModel(model => {
+            const category = data.some(resource => resource.type === model.selectedCategory)
+              ? model.selectedCategory : data[0]?.type ?? model.selectedCategory
+            const resource = data.find(item => item.type === category && item.name === model.selectedResource)
+              ?? data.find(item => item.type === category)
+            return { ...model, selectedCategory: category, selectedResource: resource?.name ?? '' }
+          })
           setResourcesLoaded(true)
         }
       })
@@ -128,7 +136,8 @@ export default function CalendarPage() {
   })
 
   const filteredCategory = allresources.filter(c => c.type === reserveModel.selectedCategory);
-  const resourceId = allresources.find(resource => resource.name === reserveModel.selectedResource)?.id
+  const resourceId = allresources.find(resource => resource.type === reserveModel.selectedCategory &&
+    resource.name === reserveModel.selectedResource)?.id
   const today = todayInStockholm()
   const currentTime = stockholmTime.format(now)
   const selectedSchedule = userRole && weeklyTimes?.week === selectedWeek ? weeklyTimes : null

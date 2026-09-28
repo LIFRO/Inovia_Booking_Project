@@ -1,4 +1,5 @@
 import './CSS/ResourceCard.css';
+import { Link } from 'react-router-dom';
 
 export type Available = "Available" | "Limited Space" | "Fully Booked"
 
@@ -8,6 +9,7 @@ interface ResourceCardProps{
   totalValue: number,
   freeValue: number
   available: Available
+  to: string
 }
 
 
@@ -20,9 +22,9 @@ function getStatusClass(status: Available){
 }
 
 
-export default function ResourceCard({image, title,  totalValue, freeValue, available}: ResourceCardProps) {
+export default function ResourceCard({image, title, totalValue, freeValue, available, to}: ResourceCardProps) {
   return (
-     <div className='resourceCard'>
+     <Link className='resourceCard' to={to} aria-label={`View ${title} in calendar`}>
         <img src={image} alt={title} className='resourceCardImage'/>
         <div className='cardContent'>
           <div className='cardHeader'>
@@ -40,6 +42,6 @@ export default function ResourceCard({image, title,  totalValue, freeValue, avai
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   )
 } 
