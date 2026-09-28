@@ -19,7 +19,7 @@ interface Props {
   availableSlotsByDay: Record<string, string[]>
   availabilityLoading: boolean
   availabilityError: string
-  onBookingCancelled: (id: number) => void
+  onBookingCancelled: (booking: BookingDto) => void
 }
 
 const dateLabel = new Intl.DateTimeFormat('sv-SE', {
@@ -233,7 +233,7 @@ export default function CustomCalendar({ selectedResource, selectedDate, onDateC
     {selectedBooking && <CancelBookingModal booking={selectedBooking}
       onClose={() => setSelectedBooking(null)}
       onCancelled={() => {
-        onBookingCancelled(selectedBooking.id)
+        onBookingCancelled(selectedBooking)
         setSelectedBooking(null)
       }} />}
   </section>

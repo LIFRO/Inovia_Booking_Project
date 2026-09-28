@@ -14,6 +14,7 @@ export default function CancelBookingModal({ booking, onClose, onCancelled }: Pr
   const [busy, setBusy] = useState(false)
 
   async function cancelBooking() {
+    setError('')
     setBusy(true)
     try {
       await apiDeleteBooking(booking.id)
@@ -31,7 +32,10 @@ export default function CancelBookingModal({ booking, onClose, onCancelled }: Pr
       <h3 className="modalTitle" id="bookingModalTitle">{booking.resourceName}</h3>
       <p className="modalDateTime">{booking.date}</p>
       <p className="modalDateTime">{booking.startTime.slice(0, 5)}–{booking.endTime.slice(0, 5)}</p>
-      {error && <p className="modalError" role="alert">{error}</p>}
+      {error && <div className="modalError" role="alert">
+        <strong>Cancellation failed</strong>
+        <p>{error}</p>
+      </div>}
       <button type="button" className="modalCancelBtn" onClick={cancelBooking} disabled={busy}>
         {busy ? 'Cancelling…' : 'Cancel booking'}
       </button>

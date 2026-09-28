@@ -39,6 +39,7 @@ export default function CalendarPage() {
   const [allresources, setAllResources] = useState<ResourceDto[]>([])
   const [startTime, setStartTime] = useState('')
   const [bookingOpen, setBookingOpen] = useState(() => location.state?.openBooking === true)
+  const [bookingConfirmation, setBookingConfirmation] = useState<{ type: 'created' | 'cancelled', booking: BookingDto } | null>(null)
   const bookingDialogRef = useRef<HTMLDialogElement>(null)
   const [resourcesLoaded, setResourcesLoaded] = useState(false)
   const [resourceError, setResourceError] = useState('')
@@ -106,6 +107,12 @@ export default function CalendarPage() {
     if (bookingOpen) bookingDialogRef.current?.showModal()
   }, [bookingOpen])
 
+  useEffect(() => {
+    if (!bookingConfirmation) return
+    const timer = setTimeout(() => setBookingConfirmation(null), 6000)
+    return () => clearTimeout(timer)
+  }, [bookingConfirmation])
+
   function closeBooking() {
     setBookingOpen(false)
     if (location.state?.openBooking) navigate('/calendar', { replace: true, state: null })
@@ -172,6 +179,16 @@ export default function CalendarPage() {
 
   return (
     <div className="calendarContent">
+      {bookingConfirmation && (
+        <div className="bookingConfirmation" role="status" aria-live="polite">
+          <span className="bookingConfirmationIcon" aria-hidden="true">✓</span>
+          <div className="bookingConfirmationText">
+            <strong>{bookingConfirmation.type === 'created' ? 'Booking confirmed' : 'Booking cancelled'}</strong>
+            <span>{bookingConfirmation.booking.resourceName} · {bookingConfirmation.booking.date} · {bookingConfirmation.booking.startTime.slice(0, 5)}–{bookingConfirmation.booking.endTime.slice(0, 5)}</span>
+          </div>
+          <button type="button" className="bookingConfirmationClose" onClick={() => setBookingConfirmation(null)} aria-label="Dismiss booking confirmation">×</button>
+        </div>
+      )}
       <div className="calendarWrapper">
       <CustomCalendar
         selectedResource={reserveModel.selectedResource} 
@@ -192,7 +209,10 @@ export default function CalendarPage() {
         availableSlotsByDay={availableSlotsByDay}
         availabilityLoading={availabilityLoading}
         availabilityError={availabilityError}
-        onBookingCancelled={(id) => setBookings(current => current.filter(booking => booking.id !== id))}
+        onBookingCancelled={(booking) => {
+          setBookings(current => current.filter(currentBooking => currentBooking.id !== booking.id))
+          setBookingConfirmation({ type: 'cancelled', booking })
+        }}
       />
       </div>
       {bookingOpen && <dialog ref={bookingDialogRef} className="reserveDialog"
@@ -216,6 +236,7 @@ export default function CalendarPage() {
             loading={availabilityLoading}
             onBookingCreated={(booking) => {
               setBookings(current => [...current.filter(b => b.id !== booking.id), booking])
+              setBookingConfirmation({ type: 'created', booking })
               closeBooking()
             }}/>
         </div>

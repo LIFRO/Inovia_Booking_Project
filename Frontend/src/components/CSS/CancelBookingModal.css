@@ -30,7 +30,16 @@
 
 .modalTitle { margin: 8px 0 18px; color: #0f172a; }
 .modalDateTime { margin: 8px 0; padding: 10px; border-radius: 8px; background: #f8fafc; color: #334155; }
-.modalError { color: #b91c1c; }
+.modalError {
+  padding: 12px;
+  border: 1px solid #fca5a5;
+  border-left: 4px solid #dc2626;
+  border-radius: 8px;
+  background: #fef2f2;
+  color: #991b1b;
+  text-align: left;
+}
+.modalError p { margin: 4px 0 0; overflow-wrap: anywhere; }
 
 .modalCancelBtn {
   width: 100%;

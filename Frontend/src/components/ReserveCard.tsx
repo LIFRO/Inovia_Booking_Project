@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import './CSS/ReserveCard.css'
 import type { ReserveModel } from '../views/CalendarPage'
 import type { ResourceDto } from '../ts/dto/ResourceDTO'
@@ -56,16 +56,6 @@ export default function ReserveCard({
         endSelection.start === selectedStartTime && endOptions.includes(endSelection.end)
         ? endSelection.end : endOptions[0] ?? ''
 
-    useEffect(() => {
-        if(errorMessage !== ""){
-            const timerError = setTimeout(() => (setErrorMessage("")),3000)
-            return () => {
-                clearTimeout(timerError)
-            }
-        }
-
-    },[errorMessage])
-
     async function handleConfirm(){
     if (submitting) return
     if(!reserveModel.selectedDate || !selectedStartTime || !selectedEndTime || loading || availabilityError){
@@ -77,6 +67,7 @@ export default function ReserveCard({
     if(!foundResource)
         return;
 
+    setErrorMessage("")
     setSubmitting(true)
     try {
         const booking = await apiCreateBooking({
@@ -205,8 +196,12 @@ export default function ReserveCard({
             disabled={loading || submitting || !!availabilityError || !selectedEndTime}>{submitting ? 'Booking…' : '+ Confirm Booking'}</button>
         </div>
         {errorMessage && (
-        <div className='toast'>
-            <p className='errorText'>{errorMessage}</p>
+        <div className='reserveFeedback' role='alert'>
+            <span className='reserveFeedbackIcon' aria-hidden='true'>!</span>
+            <div>
+                <strong>Booking failed</strong>
+                <p>{errorMessage}</p>
+            </div>
         </div>
         )}
     </div>
