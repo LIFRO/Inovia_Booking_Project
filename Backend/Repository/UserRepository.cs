@@ -11,7 +11,7 @@ public class UserRepository(AppDbContext db)
     public async Task<User?> FindUserAsync(string userName)
     {
         //NOTE: This function is used to find and return a user;
-        return await _db.Users.FirstOrDefaultAsync(u => u.UserName == userName);
+        return await _db.Users.FirstOrDefaultAsync(u => u.UserName != null && u.UserName.ToLower() == userName.ToLower());
     }
 
     public async Task<bool> DoesUserExist(string userName, string email)
