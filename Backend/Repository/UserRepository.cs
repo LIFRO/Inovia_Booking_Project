@@ -16,7 +16,8 @@ public class UserRepository(AppDbContext db)
 
     public async Task<bool> DoesUserExist(string userName, string email)
     {
-        return await _db.Users.AnyAsync(u => u.UserName == userName || u.Email == email);
+        return await _db.Users.AnyAsync(u =>
+            (u.UserName != null && u.UserName.ToLower() == userName.ToLower()) || u.Email == email);
     }
 
     public async Task<UserCreatedOrLoggedIn> CreateUser(User user)
