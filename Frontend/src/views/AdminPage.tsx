@@ -14,7 +14,7 @@ export default function AdminPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [endDate, setEndDate] = useState<string>();
     const [startDate, setStartDate] = useState<string>();
-    const [errorMessage, setErrorMessage] = useState<string>("");
+    const [deleteMessage, setDeleteMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
     const [isOpen, setIsOpen] = useState(false);
 
     useBookingEvents(
@@ -44,10 +44,11 @@ const filteredBookings = bookingRow.filter(booking => {
     async function handleDelete(id: number){
         try{
             await apiDeleteBooking(id);
-            setBookingRow(bookingRow.filter(booking => booking.id !== id))
+            setBookingRow(prev => prev.filter(booking => booking.id !== id));
+            setDeleteMessage({ text: "Bokningen har tagits bort", type: 'success' });
         }catch{
             console.error("Failed to delete booking");
-            setErrorMessage("Kunde inte ta bort bokningen");
+            setDeleteMessage({ text: "Kunde inte ta bort bokningen", type: 'error' });
         }
     }
     
@@ -62,12 +63,10 @@ const filteredBookings = bookingRow.filter(booking => {
 
         useEffect(() => {
 
-        if(errorMessage !== ""){
-            const timerError = setTimeout(() => (setErrorMessage("")),3000)
-            return () => {
-            clearTimeout(timerError)
-        }
-        }},[errorMessage])
+        if (!deleteMessage) return;
+        const timer = setTimeout(() => setDeleteMessage(null), 3000);
+        return () => clearTimeout(timer);
+    }, [deleteMessage]);
 
   return (
     <div className='summaryContent'>
@@ -115,9 +114,13 @@ const filteredBookings = bookingRow.filter(booking => {
             ))}
         </tbody>
        </table>
-            <div className='toast'>
-            {errorMessage && <p className='errorText'>{errorMessage}</p>}
-        </div>
+        {deleteMessage && (
+            <div className='toast' role='status' aria-live='polite'>
+                <p className={deleteMessage.type === 'success' ? 'successText' : 'errorText'}>
+                    {deleteMessage.text}
+                </p>
+            </div>
+        )}
     </div>
   )
 }
