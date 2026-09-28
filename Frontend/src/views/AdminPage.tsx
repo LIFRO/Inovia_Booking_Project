@@ -5,8 +5,7 @@ import BookingSummary from '../components/BookingSummary';
 import { apiDeleteBooking, apiGetAllBookings } from '../ts/apiCalls/Booking';
 import { useBookingEvents } from '../ts/useBookingEvents';
 import Popup from '../components/Popup';
-import RegisteringPage from './Registering';
-import { apiRegisterAdmin } from '../ts/apiCalls/Admin';
+import CreateAdminForm from '../components/CreateAdminForm';
 import type { BookingDto } from '../ts/dto/BookingDto';
 
 export default function AdminPage() {
@@ -14,7 +13,7 @@ export default function AdminPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [endDate, setEndDate] = useState<string>();
     const [startDate, setStartDate] = useState<string>();
-    const [deleteMessage, setDeleteMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+    const [notification, setNotification] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
     const [isOpen, setIsOpen] = useState(false);
 
     useBookingEvents(
@@ -45,10 +44,10 @@ const filteredBookings = bookingRow.filter(booking => {
         try{
             await apiDeleteBooking(id);
             setBookingRow(prev => prev.filter(booking => booking.id !== id));
-            setDeleteMessage({ text: "Bokningen har tagits bort", type: 'success' });
+            setNotification({ text: "Bokningen har tagits bort", type: 'success' });
         }catch{
             console.error("Failed to delete booking");
-            setDeleteMessage({ text: "Kunde inte ta bort bokningen", type: 'error' });
+            setNotification({ text: "Kunde inte ta bort bokningen", type: 'error' });
         }
     }
     
@@ -63,10 +62,15 @@ const filteredBookings = bookingRow.filter(booking => {
 
         useEffect(() => {
 
-        if (!deleteMessage) return;
-        const timer = setTimeout(() => setDeleteMessage(null), 3000);
+        if (!notification) return;
+        const timer = setTimeout(() => setNotification(null), 3000);
         return () => clearTimeout(timer);
-    }, [deleteMessage]);
+    }, [notification]);
+
+    function handleAdminCreated() {
+        setIsOpen(false);
+        setNotification({ text: 'Admin created successfully', type: 'success' });
+    }
 
   return (
     <div className='summaryContent'>
@@ -74,8 +78,8 @@ const filteredBookings = bookingRow.filter(booking => {
                  <h2>System Activity Summary</h2>
                  <button className='adminButton' onClick={() => setIsOpen(true)}>+ New Admin</button>
              </div>
-       <Popup isOpen={isOpen} onClose={() => setIsOpen(false)}>
-           <RegisteringPage registerApiCall={apiRegisterAdmin}/>
+       <Popup isOpen={isOpen} onClose={() => setIsOpen(false)} label="Create admin">
+           {isOpen && <CreateAdminForm onCreated={handleAdminCreated}/>}
        </Popup>
        <div className='summaryCardContent'>
         <SummaryCard 
@@ -114,10 +118,10 @@ const filteredBookings = bookingRow.filter(booking => {
             ))}
         </tbody>
        </table>
-        {deleteMessage && (
+        {notification && (
             <div className='toast' role='status' aria-live='polite'>
-                <p className={deleteMessage.type === 'success' ? 'successText' : 'errorText'}>
-                    {deleteMessage.text}
+                <p className={notification.type === 'success' ? 'successText' : 'errorText'}>
+                    {notification.text}
                 </p>
             </div>
         )}

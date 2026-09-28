@@ -111,8 +111,78 @@ td{
   margin: 0;
 }
 .summaryContent .toast .successText {
-  color: #dc2626;
+  color: #16a34a;
   margin: 0;
+}
+
+.createAdminForm {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.createAdminHeader {
+  padding-right: 40px;
+  margin-bottom: 4px;
+}
+
+.createAdminHeader h2 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 1.5rem;
+}
+
+.createAdminHeader p {
+  margin: 6px 0 0;
+  color: #64748b;
+}
+
+.createAdminField {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.createAdminField label {
+  color: #475569;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.createAdminField input {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  color: #0f172a;
+  background: #ffffff;
+  font: inherit;
+}
+
+.createAdminField input:focus {
+  outline: 3px solid rgba(20, 184, 166, 0.2);
+  border-color: #14b8a6;
+}
+
+.createAdminSubmit {
+  min-height: 44px;
+  border: 0;
+  border-radius: 8px;
+  background: #14b8a6;
+  color: #ffffff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.createAdminSubmit:hover {
+  background: #0d9488;
+}
+
+.createAdminSubmit:disabled {
+  opacity: 0.65;
+  cursor: wait;
 }
 
 @media (max-width: 760px) {
