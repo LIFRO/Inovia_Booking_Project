@@ -75,7 +75,7 @@ const filteredBookings = bookingRow.filter(booking => {
   return (
     <div className='summaryContent'>
              <div className='summaryHeader'>
-                 <h2>System Activity Summary</h2>
+                 <h2>Administration</h2>
                  <button className='adminButton' onClick={() => setIsOpen(true)}>+ New Admin</button>
              </div>
        <Popup isOpen={isOpen} onClose={() => setIsOpen(false)} label="Create admin">

@@ -18,7 +18,7 @@ export default function MainLayout() {
     <div className="dashboardMain">
         <SideBar userName={userName} />
         <div className="mainContent">
-            {location.pathname !== '/calendar' && <Header userName={userName}/>}
+            {location.pathname !== '/calendar' && location.pathname !== '/admin' && <Header userName={userName}/>}
             <Outlet/>
         </div>
     </div>
