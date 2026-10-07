@@ -15,9 +15,8 @@ public class ChatController(ChatService service) : ControllerBase
 
     [Authorize]
     [HttpPost("ChatBot")]
-    public async Task<IActionResult> ChatBot ([FromBody] String Message)
+    public async Task<IActionResult> ChatBot ([FromBody] String essage)
     {
-	Service.ChatServic.ChatServic.ChatServic.ChatServic.ChatServiceeeee;
-	
+	service.	
     }
 }
