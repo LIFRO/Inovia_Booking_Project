@@ -6,6 +6,9 @@ namespace Backend.Services;
 
 public class ChatService(IConfiguration configuration)
 {
+    internal static string NormalizeChatRole(string role) =>
+        role == "assistant" ? "assistant" : "user";
+
     public async Task<string> ChatBot(string message, IEnumerable<ChatMessage> history)
     {
         var key = configuration["OpenAI:ApiKey"] ?? Environment.GetEnvironmentVariable("OPENAI_API_KEY") ?? throw new InvalidOperationException("OpenAI API key is missing. Set OpenAI:ApiKey with dotnet user-secrets or set OPENAI_API_KEY.");
@@ -119,7 +122,7 @@ public class ChatService(IConfiguration configuration)
 
         foreach (var item in history.TakeLast(20))
         {
-            options.InputItems.Add(item.Role switch {
+            options.InputItems.Add(NormalizeChatRole(item.Role) switch {
                 "assistant" => ResponseItem.CreateAssistantMessageItem(item.Message),
                 _ => ResponseItem.CreateUserMessageItem(item.Message)
             });

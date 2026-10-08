@@ -22,6 +22,9 @@ public class ChatController
     [HttpPost("ChatBot")]
     public async Task<IActionResult> ChatBot([FromBody] ChatRequest request)
     {
+        if (request is null || string.IsNullOrWhiteSpace(request.Message))
+            return BadRequest(new { error = "Message is required." });
+
         var reply = await _service.ChatBot(request.Message, request.History);
 
         return Ok(reply);
