@@ -133,7 +133,9 @@ function Chatbot() {
                             </svg>
                         </button>
                     </form>
-                    <button className="humanSupport" type="button">Talk to a person</button>
+                    <a className="humanSupport" href="tel:+46720531819">
+                        Talk to a person: 072-053-18-19
+                    </a>
                 </section>
             )}
 
