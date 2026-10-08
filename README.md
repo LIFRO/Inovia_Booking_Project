@@ -46,3 +46,38 @@ npm run dev
 ## Felsökning
 
 **"Failed to connect to 127.0.0.1:5432"** — PostgreSQL kör inte. Kontrollera att Docker Desktop är igång och att containern är startad (`docker start innovia-db`).
+
+## AI-supportchattbot
+
+Innovia har en AI-baserad förstalinjesupport för inloggade användare. Chatten hjälper användaren att felsöka enklare problem i bokningssystemet och hänvisar till IT-support när problemet kräver mänsklig hjälp. Den kan inte läsa bokningar, kontrollera systemstatus eller göra ändringar i systemet.
+
+### Teknisk lösning
+
+```text
+React-komponent → POST /api/chat/ChatBot → ChatService → OpenAI Responses API
+```
+
+- Frontend: `Frontend/src/components/ITSupport.tsx`
+- API-endpoint: `Backend/Controllers/ChatController.cs`
+- AI-tjänst och instruktioner: `Backend/Services/ChatService.cs`
+- Chatten kräver en giltig JWT, eftersom endpointen använder `[Authorize]`.
+- De senaste 20 meddelandena skickas med som chatthistorik så att boten kan använda samtalets sammanhang.
+
+### Konfiguration lokalt
+
+Konfigurera API-nyckeln från katalogen `Backend` före du startar backend:
+
+```bash
+dotnet user-secrets set "OpenAI:ApiKey" "din-api-nyckel"
+```
+
+Alternativt kan miljövariabeln `OPENAI_API_KEY` användas. Modellen är för närvarande konfigurerad i `ChatService.cs`.
+
+Starta sedan backend och frontend enligt instruktionerna ovan, logga in och öppna chattikonen nere till höger. Skicka ett meddelande för att verifiera att svaret visas i chatten. Knappen **Talk to a person** öppnar en telefonlänk till IT-support på `072-053-18-19`.
+
+### Säkerhet och avgränsningar
+
+- API-nyckeln får aldrig läggas i React/Vite-koden, `appsettings.json` eller Git. Använd .NET User Secrets lokalt och en skyddad miljövariabel på produktionsservern.
+- Endast autentiserade användare kan anropa chatt-API:t.
+- Chatboten instrueras att inte påstå att den har kontrollerat bokningar, databas, loggar eller användarens enhet.
+- Vid osäkerhet eller ett troligt systemfel ska den hänvisa användaren till IT-support i stället för att hitta på ett svar.
