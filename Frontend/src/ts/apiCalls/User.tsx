@@ -7,20 +7,16 @@ export async function apiLogin(userName: string, password: string) {
 		password: password
 	});
 
-	console.log(response.data);
-
 	return response.data;
 }
 
 export async function apiRegister(email: string, userName: string, password: string) {
-	const response = await axios.post("/api/user/register", {
+	const response = await axios.post<loginResponse>("/api/user/register", {
 			email: email,
 			userName: userName,
 			password: password
 	
 	});
-
-	console.log(response.data);
 
 	return response.data;
 }

@@ -5,7 +5,9 @@ import {
 } from '@microsoft/signalr'
 
 export const connection: HubConnection = new HubConnectionBuilder()
-  .withUrl('/hubs/bookings') // relativ - går via Vite-proxyn
+  .withUrl('/hubs/bookings', {
+    accessTokenFactory: () => localStorage.getItem('token') ?? '',
+  })
   .withAutomaticReconnect()
   .build()
 
@@ -15,10 +17,7 @@ let starting: Promise<void> | null = null
 export function startConnection(): Promise<void> {
   if (connection.state === HubConnectionState.Connected) return Promise.resolve()
   if (!starting) {
-    starting = connection.start().catch((err) => {
-      starting = null
-      throw err
-    })
+    starting = connection.start().finally(() => { starting = null })
   }
   return starting
 }

@@ -2,10 +2,23 @@ html, body {
   font-family: 'Inter', sans-serif;
   margin: 0;
   height: 100%;
+  color: #27343a;
 }
 #root {
   height: 100%;
 }
 * {
   box-sizing: border-box;
+}
+
+button, input, select {
+  font: inherit;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
 }

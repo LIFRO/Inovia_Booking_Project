@@ -1,29 +1,89 @@
 
-.calendarContent{
-display: flex;
-flex-direction: row;
-margin-top: 24px;
-}
+.calendarContent { display: flex; flex: 1; flex-direction: column; min-height: 0; margin-top: 0; }
 
-.calendarWrapper{
-  flex: 1;
-}
-
-.reserveContent {
-  width: 350px;
-  height: fit-content;
-  flex-shrink: 0;
-  background-color: white;
-  border-radius: 12px;
-  border: 1px solid rgb(229, 231, 235);
-  padding: 20px;
+.bookingConfirmation {
+  position: fixed;
+  top: 76px;
+  right: 20px;
+  z-index: 1001;
   display: flex;
-  flex-direction: column;
+  align-items: flex-start;
   gap: 12px;
+  width: min(440px, calc(100vw - 32px));
+  padding: 16px;
+  border: 1px solid #86efac;
+  border-left: 5px solid #16a34a;
+  border-radius: 10px;
+  background: #f0fdf4;
+  color: #14532d;
+  box-shadow: 0 8px 24px rgb(15 23 42 / 18%);
 }
 
-.reserveTitle{
-  border-bottom: 1px solid rgb(229, 231, 235);
+.bookingConfirmationIcon {
+  display: grid;
+  flex: 0 0 26px;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #16a34a;
+  color: white;
+  font-weight: 700;
+}
+
+.bookingConfirmationText { display: grid; gap: 4px; min-width: 0; }
+.bookingConfirmationText span { overflow-wrap: anywhere; }
+
+.bookingConfirmationClose {
+  margin: -4px -4px 0 auto;
+  border: 0;
+  background: transparent;
+  color: #14532d;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.bookingConfirmationClose:focus-visible { outline: 2px solid #15803d; outline-offset: 2px; }
+
+.calendarWrapper { flex: 1; min-width: 0; min-height: 0; }
+
+.reserveDialog {
+  width: min(440px, calc(100% - 32px));
+  max-height: min(90vh, 800px);
+  padding: 0;
+  border: 0;
+  border-radius: 14px;
+  box-shadow: 0 20px 48px rgb(15 23 42 / 16%);
+}
+
+.reserveDialog::backdrop { background: rgb(15 23 42 / 42%); }
+
+.reserveContent { background: white; padding: 20px; }
+
+.reserveDialogHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 1px solid #e5ebe8;
   padding-bottom: 12px;
-  margin: 0;
+}
+
+.reserveTitle { margin: 0; }
+
+.reserveDialogClose {
+  border: 0;
+  background: transparent;
+  color: #475569;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+@media (max-width: 760px) {
+  .bookingConfirmation { top: 12px; right: 12px; }
+  .reserveDialog { width: calc(100% - 24px); max-height: calc(100dvh - 24px); }
+  .reserveContent { max-height: calc(100dvh - 24px); overflow-y: auto; padding: 16px; }
+  .reserveDialogClose { min-width: 44px; min-height: 44px; }
 }

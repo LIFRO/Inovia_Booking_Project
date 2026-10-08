@@ -2,6 +2,7 @@ import './CSS/Sidebar.css';
 import logo from '../assets/logo.svg'
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../ts/types/AuthContext';
+import { connection } from '../ts/signalr';
 
 
 interface SideBarProps {
@@ -12,15 +13,13 @@ interface SideBarProps {
 
 export default function SideBar({userName}: SideBarProps) {
     const navigate = useNavigate()
-    const {userRole, setUserRole, setUserName: setAuthUserName,setUserId} = useAuth();
+    const {userRole, signOut} = useAuth();
     const location = useLocation();
 
 
     const handleLogout =()=> {
-        localStorage.removeItem("token");
-        setUserRole(null);
-        setUserId("")
-        setAuthUserName("");
+        void connection.stop();
+        signOut();
         navigate("/login");
     }
 
@@ -39,7 +38,7 @@ export default function SideBar({userName}: SideBarProps) {
 
                     {userRole === "Admin" && (
                                             <li>
-                        <Link to="/admin" className={location.pathname === "/admin" ? "sidebarLink sidebarLinkActive" : "sidebarLink"}>Bookings</Link>
+                        <Link to="/admin" className={location.pathname === "/admin" ? "sidebarLink sidebarLinkActive" : "sidebarLink"}>Admin</Link>
                     </li>
                     )}
                         

@@ -1,99 +1,56 @@
-
-
-.sx__event-modal:has(.cancelBookingModal).is-open {
-    animation: none !important;
+.bookingModalBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  background: rgb(15 23 42 / 45%);
 }
 
 .cancelBookingModal {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 1000;
-    background: #ffffff;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 14px;
-    padding: 30px;
-    border: 1px solid #e2e8f0;
-    border-radius: 16px;
-    box-shadow: 0 22px 50px rgba(15, 23, 42, 0.18), 0 4px 12px rgba(15, 23, 42, 0.08);
-    max-width: 400px;
-    width: calc(100% - 40px);
-    animation: none;
-    overflow: hidden;
+  position: relative;
+  width: min(400px, calc(100% - 32px));
+  padding: 30px;
+  border-radius: 16px;
+  background: white;
+  box-shadow: 0 22px 50px rgb(15 23 42 / 20%);
+  text-align: center;
 }
 
-.cancelBookingModal::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 5px;
-    background: #14b8a6 /*#2563eb;*/
+.modalCloseBtn {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  border: 0;
+  background: transparent;
+  color: #475569;
+  font-size: 26px;
+  cursor: pointer;
 }
 
-.modalTitle {
-    width: 100%;
-    margin: 4px 0 6px;
-    color: #0f172a;
-    font-size: 22px;
-    line-height: 1.25;
-    font-weight: 700;
-    text-align: center;
+.modalTitle { margin: 8px 0 18px; color: #0f172a; }
+.modalDateTime { margin: 8px 0; padding: 10px; border-radius: 8px; background: #f8fafc; color: #334155; }
+.modalError {
+  padding: 12px;
+  border: 1px solid #fca5a5;
+  border-left: 4px solid #dc2626;
+  border-radius: 8px;
+  background: #fef2f2;
+  color: #991b1b;
+  text-align: left;
 }
-
-.modalDateTime {
-    width: 100%;
-    min-height: 42px;
-    margin: 0;
-    padding: 9px 12px;
-    color: #334155;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 10px;
-    font-size: 15px;
-    font-weight: 600;
-    line-height: 1.4;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-}
-
-.modalDateTime svg {
-    flex: 0 0 auto;
-    stroke: #2563eb;
-}
+.modalError p { margin: 4px 0 0; overflow-wrap: anywhere; }
 
 .modalCancelBtn {
-    margin-top: 8px;
-    background: #dc2626;
-    color: white;
-    border: 1px solid #dc2626;
-    padding: 12px 24px;
-    border-radius: 10px;
-    cursor: pointer;
-    font-size: 15px;
-    font-weight: 700;
-    width: 100%;
-    transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+  width: 100%;
+  margin-top: 16px;
+  padding: 12px;
+  border: 0;
+  border-radius: 8px;
+  background: #dc2626;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
 }
 
-.modalCancelBtn:hover,
-.modalCancelBtn:focus-visible {
-    background-color: #b91c1c;
-    border-color: #b91c1c;
-    box-shadow: 0 6px 14px rgba(185, 28, 28, 0.24);
-}
-
-.modalCancelBtn:focus-visible {
-    outline: 3px solid rgba(37, 99, 235, 0.28);
-    outline-offset: 2px;
-}
-
-.modalCancelBtn:active {
-    transform: translateY(1px);
-}
+.modalCancelBtn:disabled { opacity: .6; cursor: wait; }

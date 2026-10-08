@@ -7,6 +7,8 @@ using Backend.Data;
 using Backend.Hubs;
 using Backend.Services;
 using Microsoft.EntityFrameworkCore;
+using System.IdentityModel.Tokens.Jwt;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,11 +46,11 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<UserService>();
-builder.Services.AddScoped<AdminService>();
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<BookingRepository>();
 builder.Services.AddScoped<BookingService>();
 builder.Services.AddScoped<ResourceRepository>();
+builder.Services.AddScoped<ChatService>();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("The DefaultConnection connection string is missing");
@@ -66,6 +68,24 @@ builder.Services.AddCors(o => o.AddPolicy("spa", p => p
     .AllowAnyHeader()
     .AllowAnyMethod()
     .AllowCredentials()));
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddPolicy("chatbot", context =>
+    {
+        var userId = context.User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+        var partitionKey = userId ?? context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+
+        return RateLimitPartition.GetFixedWindowLimiter(partitionKey, _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 10,
+            Window = TimeSpan.FromMinutes(1),
+            QueueLimit = 0,
+            AutoReplenishment = true
+        });
+    });
+});
 
 var jwtKey = builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT key is missing");
 
@@ -87,6 +107,18 @@ builder.Services
 
                           ValidateLifetime = true,
                           ClockSkew = TimeSpan.FromMinutes(1)
+                      };
+                      options.Events = new JwtBearerEvents
+                      {
+                          OnMessageReceived = context =>
+                          {
+                              var token = context.Request.Query["access_token"];
+                              if (!string.IsNullOrEmpty(token) &&
+                                  context.HttpContext.Request.Path.StartsWithSegments("/hubs/bookings"))
+                                  context.Token = token;
+
+                              return Task.CompletedTask;
+                          }
                       };
                   });
 
@@ -110,6 +142,7 @@ app.UseHttpsRedirection();
 app.UseCors("spa");
 
 app.UseAuthentication();
+app.UseRateLimiter();
 app.UseAuthorization();
 
 app.MapControllers();

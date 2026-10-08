@@ -14,7 +14,6 @@ import { apiRegister } from './ts/apiCalls/User';
 function App() {
   return (
     <AuthProvider>
-    <>
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
@@ -35,7 +34,6 @@ function App() {
           </Route>
         </Routes>
       </BrowserRouter>
-    </>
     </AuthProvider>
   )
 }

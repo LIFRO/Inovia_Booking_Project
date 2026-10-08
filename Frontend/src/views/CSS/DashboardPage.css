@@ -1,12 +1,7 @@
-.overviewCards{
-  display: flex;
-  flex-direction: row;
-  gap: 50px;
-}
 .recourceCards {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
 }
 .dashboardContent {
   display: flex;
@@ -26,7 +21,7 @@
   flex-shrink: 0;
   background-color: white;
   border-radius: 12px;
-  border: 1px solid rgb(229, 231, 235);
+  border: 1px solid #e8eeeb;
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -34,14 +29,34 @@
 }
 .contentRow{
   display: flex;
-  gap: 32px;
+  gap: 24px;
   flex: 1;
   min-height: 0;
 }
 .bookingsColumn{
-  width: 450px;
+  width: min(35%, 450px);
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
   gap: 24px;
+}
+
+.exploreResources h2, .myBookings h2 {
+  color: #27343a;
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+@media (max-width: 1050px) {
+  .dashboardContent { display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; }
+  .contentRow { display: contents; }
+  .bookingsColumn { order: 0; width: 100%; }
+  .exploreResources { order: 2; }
+}
+
+@media (max-width: 620px) {
+  .recourceCards { grid-template-columns: 1fr; }
+  .bookingsColumn { gap: 16px; }
+  .myBookings, .pastBookings { padding: 16px; }
 }

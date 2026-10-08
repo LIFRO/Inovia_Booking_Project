@@ -22,10 +22,10 @@ public partial class AddWeeklyTimesFunction : Migration
             LANGUAGE plpgsql
             AS $$
             DECLARE
-                current_date date;
+                slot_date date;
                 exception_row public.available_exceptions%ROWTYPE;
             BEGIN
-                FOR current_date IN
+                FOR slot_date IN
                     SELECT day_date
                     FROM generate_series(
                         date_trunc('week', p_input_date)::date,
@@ -36,7 +36,7 @@ public partial class AddWeeklyTimesFunction : Migration
                     SELECT ae.*
                     INTO exception_row
                     FROM public.available_exceptions AS ae
-                    WHERE ae.date = current_date;
+                    WHERE ae.date = slot_date;
 
                     IF FOUND THEN
                         IF exception_row.is_available = false THEN
@@ -45,27 +45,27 @@ public partial class AddWeeklyTimesFunction : Migration
 
                         RETURN QUERY
                         SELECT
-                            extract(isodow FROM current_date)::int,
-                            current_date,
+                            extract(isodow FROM slot_date)::int,
+                            slot_date,
                             slots.slot::time
                         FROM generate_series(
-                            current_date + exception_row.start_time,
-                            current_date + exception_row.end_time - interval '1 hour',
+                            slot_date + exception_row.start_time,
+                            slot_date + exception_row.end_time - interval '1 hour',
                             interval '1 hour'
                         ) AS slots(slot);
                     ELSE
                         RETURN QUERY
                         SELECT
-                            extract(isodow FROM current_date)::int,
-                            current_date,
+                            extract(isodow FROM slot_date)::int,
+                            slot_date,
                             slots.slot::time
                         FROM public.available_times AS at
                         CROSS JOIN LATERAL generate_series(
-                            current_date + at.start_time,
-                            current_date + at.end_time - interval '1 hour',
+                            slot_date + at.start_time,
+                            slot_date + at.end_time - interval '1 hour',
                             interval '1 hour'
                         ) AS slots(slot)
-                        WHERE at.weekday = extract(isodow FROM current_date)::int;
+                        WHERE at.weekday = extract(isodow FROM slot_date)::int;
                     END IF;
                 END LOOP;
             END;

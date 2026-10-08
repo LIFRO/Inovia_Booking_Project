@@ -3,12 +3,12 @@
   justify-content: space-between;
   align-items: center;
   padding: 1px 16px;
-  border-bottom: 1px solid rgb(192, 188, 188); 
+  border-bottom: 1px solid #e5ebe8;
 }
 
 .bookingBtn {
-  background-color: #14b8a6;
-  color: rgb(241, 240, 240);
+  background-color: #0f8f83;
+  color: white;
   border: none;
   padding: 10px 16px;
   border-radius: 8px;
@@ -17,4 +17,14 @@
   font-weight: 500;
   text-decoration: none;
   display: inline-block;
+  transition: background-color 160ms ease, transform 160ms ease;
+}
+.bookingBtn:hover { background-color: #0b776d; }
+.bookingBtn:active { transform: translateY(1px); }
+
+@media (max-width: 620px) {
+  .header { flex-wrap: wrap; gap: 12px; padding: 0 0 16px; }
+  .header h1 { margin: 0; font-size: clamp(20px, 6vw, 28px); overflow-wrap: anywhere; }
+  .headerBtn, .bookingBtn { width: 100%; }
+  .bookingBtn { min-height: 44px; text-align: center; }
 }

@@ -1,5 +1,4 @@
 import './CSS/BookingSummary.css'
-import type { Status } from '../views/AdminPage'
 
 interface BookingSummaryProps{
     id: number,
@@ -8,30 +7,24 @@ interface BookingSummaryProps{
     startTime: string,
     endTime: string,
     resourceName: string,
-    status: Status,
     onDelete: (id: number) => void;
 }
 
 
-export default function BookingSummary({id, userName, date, startTime, endTime, resourceName, status, onDelete}: BookingSummaryProps) {
-    
-    function getStatusClass(status: Status){
-       if(status === "Booked") return "statusBooked"
-       if(status === "Cancelled") return "statusCancelled"
-    }
+export default function BookingSummary({id, userName, date, startTime, endTime, resourceName, onDelete}: BookingSummaryProps) {
   
     return (
         <tr className='SummaryCard'>
-            <td>    
+            <td data-label="Employee">
                 <div className="employeeEmail">{userName}</div></td>
-            <td>{date}</td>
-            <td>{startTime} - {endTime}</td>
-            <td>
+            <td data-label="Booking date">{date}</td>
+            <td data-label="Time slot">{startTime} - {endTime}</td>
+            <td data-label="Resource">
                 <span className='resourceBooked'>{resourceName}</span></td>
-            <td>
-                <span className={getStatusClass(status)}>{status}</span>
+            <td data-label="Status">
+                <span className="statusBooked">Booked</span>
             </td>
-            <td><button type='button' onClick={() => onDelete(id)} className='deleteBtn'>Delete</button></td>
+            <td data-label="Actions"><button type='button' onClick={() => onDelete(id)} className='deleteBtn'>Delete</button></td>
         </tr>
 
   )
