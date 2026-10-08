@@ -79,5 +79,7 @@ Starta sedan backend och frontend enligt instruktionerna ovan, logga in och öpp
 
 - API-nyckeln får aldrig läggas i React/Vite-koden, `appsettings.json` eller Git. Använd .NET User Secrets lokalt och en skyddad miljövariabel på produktionsservern.
 - Endast autentiserade användare kan anropa chatt-API:t.
+- Chatt-API:t begränsas till 10 anrop per minut och inloggad användare. Meddelanden får vara högst 1 000 tecken och högst 20 historikmeddelanden skickas med.
+- AI-svaret begränsas till högst 400 output-tokens för att hålla svaren korta och begränsa kostnaden.
 - Chatboten instrueras att inte påstå att den har kontrollerat bokningar, databas, loggar eller användarens enhet.
 - Vid osäkerhet eller ett troligt systemfel ska den hänvisa användaren till IT-support i stället för att hitta på ett svar.

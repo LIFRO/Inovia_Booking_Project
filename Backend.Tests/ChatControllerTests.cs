@@ -19,6 +19,17 @@ public class ChatControllerTests
         Assert.IsType<BadRequestObjectResult>(result);
     }
 
+    [Fact]
+    public async Task ChatBot_WithTooLongMessage_ReturnsBadRequest()
+    {
+        var controller = new ChatController(null!);
+        var request = new ChatRequest(new string('a', ChatRequestLimits.MaxMessageLength + 1), []);
+
+        var result = await controller.ChatBot(request);
+
+        Assert.IsType<BadRequestObjectResult>(result);
+    }
+
     [Theory]
     [InlineData("assistant", "assistant")]
     [InlineData("user", "user")]

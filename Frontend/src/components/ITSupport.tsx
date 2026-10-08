@@ -42,7 +42,7 @@ function Chatbot() {
         const token = localStorage.getItem("token");
         const request: ChatRequest = {
             message: trimmedMessage,
-            history: messages.map((chatMessage) => ({
+            history: messages.slice(-20).map((chatMessage) => ({
                 role: chatMessage.sender === "bot" ? "assistant" : "user",
                 message: chatMessage.text,
             })),
