@@ -1,5 +1,3 @@
-using Backend.Dto;
-using Backend.Models;
 using Backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -33,9 +31,7 @@ public class ChatController
         if (request.History is null || request.History.Count > ChatRequestLimits.MaxHistoryMessages)
             return BadRequest(new { error = $"History may contain at most {ChatRequestLimits.MaxHistoryMessages} messages." });
 
-        if (request.History.Any(item =>
-                item.Message.Length > ChatRequestLimits.MaxMessageLength ||
-                (item.Role != "user" && item.Role != "assistant")))
+        if (request.History.Any(item => item.Message.Length > ChatRequestLimits.MaxMessageLength || (item.Role != "user" && item.Role != "assistant")))
             return BadRequest(new { error = "History contains an invalid message." });
 
         var reply = await _service.ChatBot(request.Message, request.History);
