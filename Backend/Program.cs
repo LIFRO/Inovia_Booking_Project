@@ -48,6 +48,7 @@ builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<BookingRepository>();
 builder.Services.AddScoped<BookingService>();
 builder.Services.AddScoped<ResourceRepository>();
+builder.Services.AddScoped<ChatService>();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("The DefaultConnection connection string is missing");

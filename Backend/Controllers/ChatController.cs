@@ -3,20 +3,27 @@ using Backend.Models;
 using Backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Backend.Controllers;
 
 [ApiController]
 [Route("api/chat")]
-public class ChatController(ChatService service) : ControllerBase
+public class ChatController
+    : ControllerBase
 {
-    private readonly ChatService _service = service;
+    private readonly ChatService _service;
+
+    public ChatController(ChatService service)
+    {
+        _service = service;
+    }
 
     [Authorize]
     [HttpPost("ChatBot")]
-    public async Task<IActionResult> ChatBot ([FromBody] String essage)
+    public async Task<IActionResult> ChatBot([FromBody] ChatRequest request)
     {
-	service.	
+        var reply = await _service.ChatBot(request.Message, request.History);
+
+        return Ok(reply);
     }
 }
