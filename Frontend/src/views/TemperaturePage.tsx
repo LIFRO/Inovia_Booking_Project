@@ -41,35 +41,16 @@ function formatUpdatedAt(value: string | null) {
     return `Updated ${new Date(value).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}`;
 }
 
-function chartPath(points: MeasurementPoint[], width: number, height: number) {
+function chartPath(points: MeasurementPoint[]) {
     if (points.length === 0) return '';
     const values = points.map(point => point.v);
     const min = Math.min(...values);
     const span = Math.max(...values) - min || 1;
-    const times = points.map(point => new Date(point.t).getTime());
-    const firstTime = Math.min(...times);
-    const timeSpan = Math.max(...times) - firstTime || 1;
     return points.map((point, index) => {
-        const x = points.length === 1 ? width / 2 : 42 + ((times[index] - firstTime) / timeSpan) * (width - 58);
-        const y = height - 34 - ((point.v - min) / span) * (height - 54);
+        const x = points.length === 1 ? 50 : (index / (points.length - 1)) * 100;
+        const y = 38 - ((point.v - min) / span) * 34;
         return `${index === 0 ? 'M' : 'L'} ${x} ${y}`;
     }).join(' ');
-}
-
-function timeTicks(points: MeasurementPoint[], count = 5) {
-    if (points.length === 0) return [];
-    const start = new Date(points[0].t).getTime();
-    const end = new Date(points.at(-1)!.t).getTime();
-    const span = end - start;
-    return Array.from({ length: count }, (_, index) => {
-        const time = start + (span * index) / (count - 1);
-        return {
-            x: index / (count - 1),
-            label: new Date(time).toLocaleString([], span <= 48 * 60 * 60 * 1000
-                ? { hour: '2-digit', minute: '2-digit' }
-                : { month: 'short', day: 'numeric' }),
-        };
-    });
 }
 
 export default function TemperaturePage() {
@@ -253,14 +234,9 @@ export default function TemperaturePage() {
                         const label = metric === 'co2' ? 'CO₂' : 'Temperature';
                         const unit = metric === 'co2' ? 'ppm' : '°C';
                         const latest = points.at(-1);
-                        const chartWidth = Math.max(620, points.length * 38);
-                        const chartHeight = 190;
                         return <article className={`historyChart ${metric}`} key={metric}>
                             <div className="historyChartHeading"><span>{label}</span><strong>{latest ? `${metric === 'co2' ? Math.round(latest.v) : latest.v.toFixed(1)} ${unit}` : 'No data'}</strong></div>
-                            {points.length > 0 ? <div className="chartScroll"><svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} width={chartWidth} height={chartHeight} role="img" aria-label={`${label} trend over time`}>
-                                <path className="chartBaseline" d={`M 42 ${chartHeight - 34} H ${chartWidth - 16}`}/><path className="chartLine" d={chartPath(points, chartWidth, chartHeight)}/>
-                                {timeTicks(points).map(tick => <g key={tick.label} transform={`translate(${42 + tick.x * (chartWidth - 58)} ${chartHeight - 18})`}><line className="chartTick" y1="-5" y2="1"/><text>{tick.label}</text></g>)}
-                            </svg></div> : <p className="chartEmpty">No {label.toLowerCase()} readings in this period.</p>}
+                            {points.length > 0 ? <svg viewBox="0 0 100 42" preserveAspectRatio="none" role="img" aria-label={`${label} trend`}><path className="chartBaseline" d="M 0 38 H 100"/><path className="chartLine" d={chartPath(points)}/></svg> : <p className="chartEmpty">No {label.toLowerCase()} readings in this period.</p>}
                             {latest && <p>{new Date(latest.t).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</p>}
                         </article>;
                     })}

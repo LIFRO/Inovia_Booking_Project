@@ -32,4 +32,4 @@ History loads the two metric series with the established Portal Adapter endpoint
 
 `GET /portal/{tenantId}/devices/{deviceId}/series?type=temperature&from=...&to=...`
 
-Users can select the last 24 hours, 7 days, or 30 days, then filter between both metrics, temperature, and CO₂. The results are rendered as separate trend graphs, each normalized to its own value range. The horizontal axis is based on each reading's actual timestamp and has time/date tick labels. Dense readings widen the graph and can be scrolled horizontally instead of being compressed.
+Users can select the last 24 hours, 7 days, or 30 days, then filter between both metrics, temperature, and CO₂. The results are rendered as separate trend graphs, each normalized to its own value range.
