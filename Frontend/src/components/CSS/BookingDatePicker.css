@@ -1,0 +1,76 @@
+.bookingDatePicker { display: flex; flex-direction: column; gap: 6px; }
+
+.bookingDateTrigger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 42px;
+  padding: 8px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: white;
+  color: #1e293b;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.bookingDateTrigger:hover { border-color: #0f766e; }
+.bookingDateTrigger:focus-visible, .bookingDatePanel button:focus-visible {
+  outline: 2px solid #0f766e;
+  outline-offset: 2px;
+}
+.bookingDateTriggerIcon { width: 20px; height: 20px; flex: none; color: #0f766e; }
+.bookingDateTriggerAction { margin-left: auto; color: #0f766e; font-size: 13px; font-weight: 600; }
+
+.bookingDatePanel {
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 5px 18px rgb(15 23 42 / 8%);
+}
+.bookingDateShortcuts { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.bookingDateShortcuts button {
+  padding: 5px 9px;
+  border: 1px solid #99f6e4;
+  border-radius: 999px;
+  background: #f0fdfa;
+  color: #115e59;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.bookingDateShortcuts button:hover { background: #ccfbf1; }
+.bookingDateMonthHeader { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.bookingDateMonthHeader strong { color: #1e293b; font-size: 15px; }
+.bookingDateMonthHeader button {
+  width: 32px;
+  height: 32px;
+  border: 1px solid #e2e8f0;
+  border-radius: 7px;
+  background: white;
+  color: #334155;
+  font-size: 21px;
+  line-height: 1;
+  cursor: pointer;
+}
+.bookingDateMonthHeader button:hover:not(:disabled) { background: #f1f5f9; }
+.bookingDateMonthHeader button:disabled { opacity: .35; cursor: not-allowed; }
+.bookingDateGrid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; }
+.bookingDateWeekday { padding: 5px 0; color: #64748b; font-size: 11px; font-weight: 600; text-align: center; }
+.bookingDateDay {
+  min-width: 0;
+  height: 36px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #334155;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.bookingDateDay:hover:not(:disabled) { background: #f0fdfa; }
+.bookingDateDay.today { box-shadow: inset 0 0 0 1px #0f766e; }
+.bookingDateDay.selected, .bookingDateDay.selected:hover { background: #0f766e; color: white; }
+.bookingDateDay:disabled { color: #cbd5e1; cursor: not-allowed; }

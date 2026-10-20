@@ -2,21 +2,17 @@ import { useState } from "react";
 import { apiLogin } from "../ts/apiCalls/User.tsx";
 import "./CSS/LoginPage.css";
 import { Link } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
-import { useAuth, type UserRole } from "../ts/types/AuthContext.tsx";
+import { useAuth } from "../ts/types/AuthContext.tsx";
 
 
 
 
-const ROLE_CLAIM = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
-const NAME_CLAIM ="unique_name"
-const ID_CLAIM = "sub"
 function LoginPage() {
 
 
 	const navigate = useNavigate();
-	const { setUserRole, setUserName: setAuthUserName, setUserId } = useAuth();
+	const { signIn } = useAuth();
 	const [password, setPassword] = useState("");
 	const [username, setUserName] = useState("");
 	const [errorMessage, setErrorMessage]= useState<string>("")
@@ -24,18 +20,10 @@ function LoginPage() {
 	async function funcLogin(userName: string, password: string) {
 		try{
 			const result = await apiLogin(userName, password);
-			localStorage.setItem("token", result.accessToken);
-			const decoded = jwtDecode<Record<string, string>>(result.accessToken);
-			const role = decoded[ROLE_CLAIM] as UserRole;
-			setUserRole(role);
-			const name = decoded[NAME_CLAIM]
-			setAuthUserName(name)
-			const id = decoded[ID_CLAIM]
-			setUserId(id)
+			signIn(result.accessToken);
 			setErrorMessage("");
 			navigate("/")
-			return result;
-		}catch(error){
+		}catch{
 			setErrorMessage("Fel användarnamn eller lösenord")
 
 		}

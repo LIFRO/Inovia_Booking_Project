@@ -4,10 +4,11 @@ import "./CSS/Popup.css";
 interface PopupProps{
     children: ReactNode,
     isOpen: boolean,
-    onClose: () => void
+    onClose: () => void,
+    label: string
 }
 
-export default function Popup({children, isOpen, onClose}: PopupProps) {
+export default function Popup({children, isOpen, onClose, label}: PopupProps) {
     const dialogRef = useRef<HTMLDialogElement | null>(null);
 
     useEffect(() => {
@@ -31,15 +32,19 @@ export default function Popup({children, isOpen, onClose}: PopupProps) {
         <dialog
             ref={dialogRef}
             className="popup"
+            aria-label={label}
             onCancel={handleCancel}
+            onClick={event => {
+                if (event.target === event.currentTarget) onClose();
+            }}
         >
             <div className="popup__content">
+                <button className="popup__close" type="button" onClick={onClose} aria-label="Close dialog">
+                    ×
+                </button>
                 <div className="popup__children">
                     {children}
                 </div>
-                <button className="popup__close" type="button" onClick={onClose}>
-                    close
-                </button>
             </div>
         </dialog>
     )

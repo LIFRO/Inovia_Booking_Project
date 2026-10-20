@@ -11,7 +11,5 @@ export async function apiRegisterAdmin(email: string, userName: string, password
 		headers: token ? { Authorization: `Bearer ${token}` } : undefined
 	});
 
-	console.log(response.data);
-
 	return response.data;
 }

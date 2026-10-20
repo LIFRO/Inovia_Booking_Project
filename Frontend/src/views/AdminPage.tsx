@@ -3,44 +3,23 @@ import './CSS/AdminPage.css'
 import SummaryCard from '../components/SummaryCard';
 import BookingSummary from '../components/BookingSummary';
 import { apiDeleteBooking, apiGetAllBookings } from '../ts/apiCalls/Booking';
-import { useAuth } from '../ts/types/AuthContext';
 import { useBookingEvents } from '../ts/useBookingEvents';
 import Popup from '../components/Popup';
-import RegisteringPage from './Registering';
-import { apiRegisterAdmin } from '../ts/apiCalls/Admin';
-
-
-interface AdminDataProps{
-    id: number
-    title: string
-}
-
-export type Status = "Booked";
-
-
-type BookingRowDataProps = {
-    id: number,
-    userName: string,
-    date: string,
-    startTime: string,
-    endTime: string,
-    resourceName: string,
-    status: Status
-}
+import CreateAdminForm from '../components/CreateAdminForm';
+import type { BookingDto } from '../ts/dto/BookingDto';
 
 export default function AdminPage() {
-    const { userId,userRole } = useAuth();
-    const [bookingRow, setBookingRow] = useState<BookingRowDataProps[]>([]);
+    const [bookingRow, setBookingRow] = useState<BookingDto[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [endDate, setEndDate] = useState<string>();
     const [startDate, setStartDate] = useState<string>();
-    const [errorMessage, setErrorMessage] = useState<string>("");
+    const [notification, setNotification] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
     const [isOpen, setIsOpen] = useState(false);
 
     useBookingEvents(
     {
-        onCreated: (b) => {
-            setBookingRow(prev => [...prev, { ...b, status: "Booked" as Status }]);
+        onPrivateCreated: (b) => {
+            setBookingRow(prev => [...prev.filter(booking => booking.id !== b.id), b]);
         },
         onCancelled: (b) => {
             setBookingRow(prev => prev.filter(booking => booking.id !== b.id));
@@ -49,8 +28,6 @@ export default function AdminPage() {
             setBookingRow(prev => prev.filter(booking => booking.id !== b.id));
         },
     },
-    userId,
-    userRole === "Admin",
 );
 
 
@@ -62,17 +39,15 @@ const filteredBookings = bookingRow.filter(booking => {
 })
     const today = new Date().toISOString().split("T")[0];
     const bookingsToday = bookingRow.filter(booking => booking.date === today).length;
-    const [summary] = useState<AdminDataProps[]>([
-    {id: 1, title: "Total Bookings Today"}
-    ]);
 
     async function handleDelete(id: number){
         try{
             await apiDeleteBooking(id);
-            setBookingRow(bookingRow.filter(booking => booking.id !== id))
+            setBookingRow(prev => prev.filter(booking => booking.id !== id));
+            setNotification({ text: "Bokningen har tagits bort", type: 'success' });
         }catch{
             console.error("Failed to delete booking");
-            setErrorMessage("Kunde inte ta bort bokningen");
+            setNotification({ text: "Kunde inte ta bort bokningen", type: 'error' });
         }
     }
     
@@ -80,50 +55,44 @@ const filteredBookings = bookingRow.filter(booking => {
         
         async function fetchBookings() {
             const data = await  apiGetAllBookings();
-            const withStatus = data.map(booking => ({
-                ...booking, status: "Booked" as Status
-            }));
-            
-                setBookingRow(withStatus)
+            setBookingRow(data)
         }
         fetchBookings();
     },[])
 
         useEffect(() => {
 
-        if(errorMessage !== ""){
-            const timerError = setTimeout(() => (setErrorMessage("")),3000)
-            return () => {
-            clearTimeout(timerError)
-        }
-        }},[errorMessage])
+        if (!notification) return;
+        const timer = setTimeout(() => setNotification(null), 3000);
+        return () => clearTimeout(timer);
+    }, [notification]);
+
+    function handleAdminCreated() {
+        setIsOpen(false);
+        setNotification({ text: 'Admin created successfully', type: 'success' });
+    }
 
   return (
     <div className='summaryContent'>
              <div className='summaryHeader'>
-                 <h2>System Activity Summary</h2>
+                 <h2>Administration</h2>
                  <button className='adminButton' onClick={() => setIsOpen(true)}>+ New Admin</button>
              </div>
-       <Popup 
-            children={<RegisteringPage registerApiCall={apiRegisterAdmin}/>}
-            isOpen={isOpen}
-            onClose={() => setIsOpen(false)}
-        />
+       <Popup isOpen={isOpen} onClose={() => setIsOpen(false)} label="Create admin">
+           {isOpen && <CreateAdminForm onCreated={handleAdminCreated}/>}
+       </Popup>
        <div className='summaryCardContent'>
-        {summary.map(item => ( 
         <SummaryCard 
-        key={item.id}
-        title={item.title}
+        title="Total Bookings Today"
         value={bookingsToday}
         />
-        ))}
         </div>
        <div className='filterStatus'>
-        <input type="text" className='filterControl'  placeholder='Search Employee or Room' value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}/>
-        <input type="date" value={startDate ?? ""} onChange={(e) => setStartDate(e.target.value)} className='filterControl'/>
-        <input type="date" value={endDate ?? ""} onChange={(e) => setEndDate(e.target.value)} className='filterControl'/>
+        <input type="text" className='filterControl' aria-label="Search employee or room" placeholder='Search Employee or Room' value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}/>
+        <input type="date" aria-label="Start date" value={startDate ?? ""} onChange={(e) => setStartDate(e.target.value)} className='filterControl'/>
+        <input type="date" aria-label="End date" value={endDate ?? ""} onChange={(e) => setEndDate(e.target.value)} className='filterControl'/>
        </div>
-       <table>
+       <table className="adminBookingsTable">
         <thead>
             <tr>
             <th>EMPLOYEE</th>
@@ -144,15 +113,18 @@ const filteredBookings = bookingRow.filter(booking => {
                 startTime={booking.startTime}
                 endTime={booking.endTime}
                 resourceName={booking.resourceName}
-                status={booking.status}
                 onDelete={handleDelete}
                 />
             ))}
         </tbody>
        </table>
-            <div className='toast'>
-            {errorMessage && <p className='errorText'>{errorMessage}</p>}
-        </div>
+        {notification && (
+            <div className='toast' role='status' aria-live='polite'>
+                <p className={notification.type === 'success' ? 'successText' : 'errorText'}>
+                    {notification.text}
+                </p>
+            </div>
+        )}
     </div>
   )
 }

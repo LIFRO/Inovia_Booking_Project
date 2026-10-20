@@ -1,5 +1,4 @@
 import './CSS/DashboardPage.css'
-import OverviewCard from "../components/OverviewCard"
 import ResourcesCard from "../components/ResourceCard"
 import hotDesksImg from '../assets/hot-desks.jpg';
 import boardroomImg from '../assets/boardroom.jpg';
@@ -48,19 +47,6 @@ export default function DashboardPage() {
 
   return (
     <div className="dashboardContent">
-        <div className="bookingOverview">
-            <h2>Booking Overview</h2>
-            <div className="overviewCards" >
-                {availability.map(item => (
-                    <OverviewCard
-                    key={item.type}
-                    title={RESOURCE_TYPE_INFO[item.type]?.title ?? item.type}
-                    value={item.available}
-                    subtitle={`of ${item.total} Available`}
-                    />
-                ))}
-            </div>
-        </div>
         <div className="contentRow">
         <div className="exploreResources">
             <h2>Explore All Resources</h2>
@@ -73,6 +59,7 @@ export default function DashboardPage() {
                         totalValue={item.total}
                         freeValue={item.available}
                         available={getAvailabilityStatus(item.available, item.total)}
+                        to={`/calendar?category=${encodeURIComponent(item.type)}`}
                         />
                     ))}
             </div>

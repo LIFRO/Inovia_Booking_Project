@@ -10,11 +10,25 @@ public class BookingNotifier : IBookingNotifier
 
     public BookingNotifier(IHubContext<BookingHub> hub) => _hub = hub;
 
-    public Task BookingCreated(BookingDto booking) =>
-        _hub.Clients.All.SendAsync("BookingCreated", booking);
+    public async Task BookingCreated(BookingDto booking)
+    {
+        var publicBooking = new
+        {
+            booking.Id,
+            booking.ResourceId,
+            booking.ResourceName,
+            booking.Date,
+            booking.StartTime,
+            booking.EndTime
+        };
+
+        await _hub.Clients.All.SendAsync("BookingCreated", publicBooking);
+        await _hub.Clients.Groups($"user-{booking.UserId}", "admins")
+            .SendAsync("BookingCreatedPrivate", booking);
+    }
     
-    public Task BookingCancelled(BookingDto booking) => 
-        _hub.Clients.Group($"user-{booking.UserId}").SendAsync("BookingCancelled", booking);
+    public Task BookingCancelled(BookingDto booking) =>
+        _hub.Clients.All.SendAsync("BookingCancelled", new { booking.Id });
 
     public Task BookingDeleted(BookingDto booking) =>
         _hub.Clients.Group("admins").SendAsync("BookingDeleted", booking);

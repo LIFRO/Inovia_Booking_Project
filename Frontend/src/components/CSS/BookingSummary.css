@@ -8,7 +8,7 @@
     border-radius: 8px;
     padding: 8px 20px;
 }
-.statusBooked, .statusCancelled {
+.statusBooked {
   display: inline-block;
   padding: 4px 12px;
   border-radius: 9999px;
@@ -21,15 +21,6 @@
   color: #16a34a;
 }
 
-.statusCancelled {
-  background-color: #fee2e2;
-  color: #dc2626;
-}
-.employeeName{
-  color: black;
-  font-size: 14px;
-  font-weight: 600;
-}
 .employeeEmail{
   color: rgb(107, 106, 106);
   font-size: small;

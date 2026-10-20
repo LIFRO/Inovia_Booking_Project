@@ -15,6 +15,7 @@
 }
 
 .popup__content {
+  position: relative;
   display: flex;
   max-height: 90vh;
   flex-direction: column;
@@ -28,31 +29,31 @@
 .popup__children {
   min-width: 0;
   overflow: auto;
-  padding: 1.5rem;
+  padding: 2rem;
 }
 
 .popup__close {
-  align-self: flex-end;
-  margin: 0 1.5rem 1.5rem;
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
   border: 0;
-  border-radius: 6px;
-  padding: 0.6rem 1rem;
-  background: #e2e8f0;
-  color: #0f172a;
+  border-radius: 8px;
+  width: 2rem;
+  height: 2rem;
+  background: transparent;
+  color: #64748b;
   cursor: pointer;
-  font: inherit;
+  font-size: 1.5rem;
+  line-height: 1;
 }
 
 .popup__close:hover {
-  background: #cbd5e1;
+  background: #f1f5f9;
+  color: #0f172a;
 }
 
 @media (max-width: 480px) {
   .popup__children {
-    padding: 1rem;
-  }
-
-  .popup__close {
-    margin: 0 1rem 1rem;
+    padding: 1.5rem;
   }
 }
