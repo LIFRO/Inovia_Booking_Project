@@ -26,8 +26,10 @@ Live readings are still delivered through SignalR. The edge simulator publishes 
 
 ## Frontend history
 
-Each device card on the **Temperatures** page has a **View history** button. It loads temperature-only readings with the established Portal Adapter endpoint:
+Each device card displays its latest temperature and CO₂ reading, and has a **View history** button. The dashboard refreshes both metrics through the current-reading endpoint and live telemetry updates either metric as it arrives.
+
+History loads the two metric series with the established Portal Adapter endpoint:
 
 `GET /portal/{tenantId}/devices/{deviceId}/series?type=temperature&from=...&to=...`
 
-Users can select the last 24 hours, 7 days, or 30 days. Results are presented newest first.
+Users can select the last 24 hours, 7 days, or 30 days, then filter between both metrics, temperature, and CO₂. The results are rendered as separate trend graphs, each normalized to its own value range.
