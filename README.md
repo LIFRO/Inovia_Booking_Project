@@ -2,6 +2,13 @@
 
 Bokningssystem för kontorsresurser — mötesrum, skrivbord, VR-headsets och AI-servrar. Backend i ASP.NET Core, frontend i React/Vite.
 
+## IoT-källkod
+
+IoT-lösningen är en vanlig del av detta repository och finns i
+`Innovia-iot/innovia-iot`. Där ingår bland annat Edge Simulator,
+Ingest Gateway, Device Registry och portaladaptern. Se
+`Innovia-iot/innovia-iot/README.md` för instruktioner för IoT-tjänsterna.
+
 ## Produktion server
 
 [innovia.froden.nu
