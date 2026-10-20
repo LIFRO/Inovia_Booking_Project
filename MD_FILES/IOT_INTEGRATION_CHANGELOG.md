@@ -21,11 +21,8 @@ This document records the current IoT-related changes across the Booking System 
 
 ## Ingest Gateway
 
-- The gateway now creates a cache key from tenant slug and device serial when it stores a resolved device ID.
-
-### Current cache limitation
-
-The cache lookup still uses `tenantSlug` rather than the new `cacheKey`. Therefore the per-device cache behavior is not yet active: the first resolved device for a tenant can still be reused for later devices. Change the lookup to `_cache.TryGetValue(cacheKey, out var hit)` before relying on multiple-device telemetry in the booking frontend.
+- The gateway caches resolved tenant and device IDs using a `cacheKey` composed of the tenant slug and device serial (`{tenantSlug}:{deviceSerial}`).
+- Both cache lookup and storage use this key, so each device has its own cached resolution within a tenant. Telemetry from multiple devices no longer reuses the first device resolved for that tenant.
 
 ## Documentation organization
 

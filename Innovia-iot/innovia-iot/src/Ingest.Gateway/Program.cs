@@ -247,7 +247,7 @@ public class DeviceRegistryClient
         // Cache lookups so we don't hit DeviceRegistry on every message
         var cacheKey = $"{tenantSlug}:{deviceSerial}";
 
-        if (_cache.TryGetValue(tenantSlug, out var hit))
+        if (_cache.TryGetValue(cacheKey, out var hit))
             return hit;
 
         var tenant = await _http.GetFromJsonAsync<TenantDto>($"{_cfg.BaseUrl}/api/tenants/by-slug/{tenantSlug}") ?? throw new InvalidOperationException($"Tenant slug '{tenantSlug}' not found");
