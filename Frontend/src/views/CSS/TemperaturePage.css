@@ -1,0 +1,19 @@
+.temperaturePage { display: flex; flex: 1; min-height: 0; flex-direction: column; gap: 22px; overflow-y: auto; }
+.temperatureHeader { display: flex; justify-content: space-between; align-items: flex-start; gap: 18px; }
+.temperatureEyebrow { margin: 0 0 6px; color: #0f9f91; font-size: .75rem; font-weight: 700; letter-spacing: .09em; }
+.temperatureHeader h1 { margin: 0; color: #1f2937; font-size: 1.75rem; }
+.temperatureHeader p:not(.temperatureEyebrow) { margin: 6px 0 0; color: #64748b; }
+.temperatureActions { display: flex; align-items: center; gap: 14px; }
+.temperatureActions button { border: 1px solid #0f9f91; border-radius: 8px; background: #14b8a6; color: white; padding: 10px 16px; font: inherit; font-weight: 600; cursor: pointer; }
+.temperatureActions button:disabled { cursor: wait; opacity: .65; }
+.telemetryStatus { display: inline-flex; align-items: center; gap: 7px; color: #64748b; font-size: .9rem; white-space: nowrap; }
+.telemetryStatus i { width: 9px; height: 9px; border-radius: 50%; background: #94a3b8; }
+.telemetryStatus.live i { background: #22c55e; }.telemetryStatus.offline i { background: #ef4444; }.telemetryStatus.connecting i { background: #f59e0b; }
+.temperatureSummary, .temperatureNotice { padding: 13px 16px; border-radius: 10px; background: #eaf8f6; color: #0f766e; }
+.temperatureSummary strong { font-size: 1.15rem; }.temperatureNotice { color: #475569; background: white; }.temperatureNotice.error { color: #b91c1c; background: #fef2f2; }
+.temperatureGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; }
+.temperatureCard { min-height: 188px; padding: 18px; border: 1px solid #e2e8f0; border-radius: 12px; background: white; box-shadow: 0 1px 3px rgba(15, 23, 42, .05); }
+.temperatureCardTop { display: flex; justify-content: space-between; gap: 10px; }.temperatureCardTop p { margin: 0; color: #64748b; font-size: .82rem; }.temperatureCardTop h2 { margin: 4px 0 0; color: #1e293b; font-size: 1rem; }
+.deviceStatus { height: fit-content; border-radius: 999px; padding: 4px 8px; background: #f1f5f9; color: #475569; font-size: .75rem; text-transform: capitalize; }.deviceStatus.active { background: #dcfce7; color: #15803d; }.deviceStatus.inactive { background: #fee2e2; color: #b91c1c; }
+.temperatureReading { margin-top: 28px; color: #0f766e; font-size: 2.4rem; font-weight: 700; letter-spacing: -.05em; }.temperatureReading small { margin-left: 5px; font-size: 1rem; letter-spacing: 0; }.temperatureUpdated { margin: 14px 0 0; color: #64748b; font-size: .8rem; }
+@media (max-width: 760px) { .temperatureHeader, .temperatureActions { align-items: stretch; flex-direction: column; }.temperatureActions button { min-height: 44px; }.temperatureGrid { grid-template-columns: 1fr; } }
