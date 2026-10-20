@@ -129,7 +129,7 @@ export default function TemperaturePage() {
         if (!historyDevice || !tenantId) return;
 
         const selectedRange = historyRanges.find(range => range.value === historyRange)!;
-        const aggregationHours = historyRange === '30d' ? 5 : 1;
+        const aggregationHours = historyRange === '30d' ? 1 : 0.25;
         const from = new Date(Date.now() - selectedRange.milliseconds).toISOString();
         const to = new Date().toISOString();
         let active = true;
@@ -246,7 +246,7 @@ export default function TemperaturePage() {
                 <div className="historyFilters" aria-label="History metric">
                     {(['both', 'temperature', 'co2'] as HistoryMetric[]).map(metric => <button key={metric} type="button" className={historyMetric === metric ? 'selected' : ''} onClick={() => setHistoryMetric(metric)}>{metric === 'co2' ? 'CO₂' : metric}</button>)}
                 </div>
-                <p className="historyAggregation">Showing {historyRange === '30d' ? 'five-hour' : 'hourly'} averages.</p>
+                <p className="historyAggregation">Showing {historyRange === '30d' ? 'hourly' : '15-minute'} averages.</p>
                 {historyLoading && <p className="temperatureNotice">Loading history…</p>}
                 {historyError && <p className="temperatureNotice error" role="alert">{historyError}</p>}
                 {!historyLoading && !historyError && historyData.temperature.length === 0 && historyData.co2.length === 0 && <p className="temperatureNotice">No readings were recorded for this period.</p>}
