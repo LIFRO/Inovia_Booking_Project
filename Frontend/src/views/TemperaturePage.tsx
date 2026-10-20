@@ -41,6 +41,25 @@ function formatUpdatedAt(value: string | null) {
     return `Updated ${new Date(value).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}`;
 }
 
+function averageByWindow(points: MeasurementPoint[], hours: number): MeasurementPoint[] {
+    const windowMs = hours * 60 * 60 * 1000;
+    const buckets = new Map<number, number[]>();
+
+    for (const point of points) {
+        const bucketStart = Math.floor(new Date(point.t).getTime() / windowMs) * windowMs;
+        const values = buckets.get(bucketStart) ?? [];
+        values.push(point.v);
+        buckets.set(bucketStart, values);
+    }
+
+    return [...buckets.entries()]
+        .sort(([first], [second]) => first - second)
+        .map(([bucketStart, values]) => ({
+            t: new Date(bucketStart + windowMs / 2).toISOString(),
+            v: values.reduce((sum, value) => sum + value, 0) / values.length,
+        }));
+}
+
 function chartPath(points: MeasurementPoint[]) {
     if (points.length === 0) return '';
     const values = points.map(point => point.v);
@@ -110,6 +129,7 @@ export default function TemperaturePage() {
         if (!historyDevice || !tenantId) return;
 
         const selectedRange = historyRanges.find(range => range.value === historyRange)!;
+        const aggregationHours = historyRange === '30d' ? 5 : 1;
         const from = new Date(Date.now() - selectedRange.milliseconds).toISOString();
         const to = new Date().toISOString();
         let active = true;
@@ -122,7 +142,8 @@ export default function TemperaturePage() {
                     const response = await fetch(`/portal-api/portal/${tenantId}/devices/${historyDevice.id}/series?type=${type}&from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`);
                     if (!response.ok) throw new Error('Could not load this device history.');
                     const data: HistoryResponse = await response.json();
-                    return [...(data.points ?? [])].sort((a, b) => new Date(a.t).getTime() - new Date(b.t).getTime());
+                    const sortedPoints = [...(data.points ?? [])].sort((a, b) => new Date(a.t).getTime() - new Date(b.t).getTime());
+                    return averageByWindow(sortedPoints, aggregationHours);
                 };
                 const [temperature, co2] = await Promise.all([loadSeries('temperature'), loadSeries('co2')]);
                 if (active) setHistoryData({ temperature, co2 });
@@ -225,6 +246,7 @@ export default function TemperaturePage() {
                 <div className="historyFilters" aria-label="History metric">
                     {(['both', 'temperature', 'co2'] as HistoryMetric[]).map(metric => <button key={metric} type="button" className={historyMetric === metric ? 'selected' : ''} onClick={() => setHistoryMetric(metric)}>{metric === 'co2' ? 'CO₂' : metric}</button>)}
                 </div>
+                <p className="historyAggregation">Showing {historyRange === '30d' ? 'five-hour' : 'hourly'} averages.</p>
                 {historyLoading && <p className="temperatureNotice">Loading history…</p>}
                 {historyError && <p className="temperatureNotice error" role="alert">{historyError}</p>}
                 {!historyLoading && !historyError && historyData.temperature.length === 0 && historyData.co2.length === 0 && <p className="temperatureNotice">No readings were recorded for this period.</p>}
