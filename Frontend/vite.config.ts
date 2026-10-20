@@ -10,6 +10,23 @@ export default defineConfig({
     proxy: {
       '/api':  { target: backend, changeOrigin: true },
       '/hubs': { target: backend, changeOrigin: true, ws: true },
+      // IoT services used by the admin temperature monitor.
+      '/registry': {
+        target: 'http://localhost:5101',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/registry/, ''),
+      },
+      '/portal-api': {
+        target: 'http://localhost:5104',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/portal-api/, ''),
+      },
+      '/telemetry': {
+        target: 'http://localhost:5103',
+        changeOrigin: true,
+        ws: true,
+        rewrite: (path) => path.replace(/^\/telemetry/, ''),
+      },
     },
   },
 })

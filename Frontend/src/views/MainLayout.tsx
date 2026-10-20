@@ -19,7 +19,7 @@ export default function MainLayout() {
         <div className={location.pathname === '/calendar' ? 'dashboardMain calendarLayout' : 'dashboardMain'}>
             <SideBar userName={userName} />
             <div className="mainContent">
-                {location.pathname !== '/calendar' && location.pathname !== '/admin' && <Header userName={userName} />}
+                {location.pathname !== '/calendar' && location.pathname !== '/admin' && location.pathname !== '/temperatures' && <Header userName={userName} />}
                 <Outlet />
                 <div>
                     <Chatbot />

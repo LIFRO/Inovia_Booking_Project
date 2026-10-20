@@ -3,6 +3,7 @@ import MainLayout from './views/MainLayout'
 import DashboardPage from './views/DashboardPage';
 import AdminPage from './views/AdminPage';
 import CalendarPage from './views/CalendarPage';
+import TemperaturePage from './views/TemperaturePage';
 import LoginPage from './views/LoginPage';
 import RegisteringPage from './views/Registering';
 import './App.css'
@@ -31,6 +32,11 @@ function App() {
               
             <Route index element={<DashboardPage />} />
             <Route path="calendar" element={<CalendarPage />} />
+            <Route path="temperatures" element={
+              <ProtectedRoute requiredRole='Admin'>
+                <TemperaturePage />
+              </ProtectedRoute>
+            } />
           </Route>
         </Routes>
       </BrowserRouter>

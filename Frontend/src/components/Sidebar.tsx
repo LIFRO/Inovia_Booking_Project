@@ -37,9 +37,14 @@ export default function SideBar({userName}: SideBarProps) {
                     </li>
 
                     {userRole === "Admin" && (
-                                            <li>
-                        <Link to="/admin" className={location.pathname === "/admin" ? "sidebarLink sidebarLinkActive" : "sidebarLink"}>Admin</Link>
-                    </li>
+                        <>
+                            <li>
+                                <Link to="/admin" className={location.pathname === "/admin" ? "sidebarLink sidebarLinkActive" : "sidebarLink"}>Admin</Link>
+                            </li>
+                            <li>
+                                <Link to="/temperatures" className={location.pathname === "/temperatures" ? "sidebarLink sidebarLinkActive" : "sidebarLink"}>Temperatures</Link>
+                            </li>
+                        </>
                     )}
                         
                 </ul>
