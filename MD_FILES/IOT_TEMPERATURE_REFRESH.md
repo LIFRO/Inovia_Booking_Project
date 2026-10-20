@@ -23,3 +23,11 @@ If no matching reading exists, `point` is `null`.
 Previously, Refresh downloaded each device's 24-hour history and the frontend used the final item as the current temperature. The new endpoint makes the database choose the newest timestamp, transfers only one reading, and avoids relying on ordering within a grouped history response.
 
 Live readings are still delivered through SignalR. The edge simulator publishes on its configured 10-second interval, so a live value can take up to one interval to arrive after the page opens.
+
+## Frontend history
+
+Each device card on the **Temperatures** page has a **View history** button. It loads temperature-only readings with the established Portal Adapter endpoint:
+
+`GET /portal/{tenantId}/devices/{deviceId}/series?type=temperature&from=...&to=...`
+
+Users can select the last 24 hours, 7 days, or 30 days. Results are presented newest first.
