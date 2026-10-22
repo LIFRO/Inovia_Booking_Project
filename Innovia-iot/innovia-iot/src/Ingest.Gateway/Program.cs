@@ -125,6 +125,13 @@ mqttClient.ApplicationMessageReceivedAsync += async e =>
             {
                 batch.DeviceId = serial;
             }
+            else if (!string.Equals(batch.DeviceId, serial, StringComparison.Ordinal))
+            {
+                Console.WriteLine(
+                    $"[MQTT] Skipping: payload deviceId '{batch.DeviceId}' does not match topic serial '{serial}'"
+                );
+                return;
+            }
 
             using var scope = app.Services.CreateScope();
             var svc = scope.ServiceProvider.GetRequiredService<IngestService>();
