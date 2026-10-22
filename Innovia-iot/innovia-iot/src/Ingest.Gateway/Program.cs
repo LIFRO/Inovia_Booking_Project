@@ -139,19 +139,41 @@ mqttClient.ApplicationMessageReceivedAsync += async e =>
     }
 };
 
-try
-{
-    await mqttClient.ConnectAsync(mqttOptions);
-    await mqttClient.SubscribeAsync(new MqttTopicFilterBuilder()
-                                        .WithTopic(mqttTopic)
-                                        .WithAtLeastOnceQoS()
-                                        .Build());
-    Console.WriteLine($"[MQTT] Subscribed to '{mqttTopic}' on localhost:1883");
-}
-catch (Exception ex)
-{
-    Console.WriteLine($"[MQTT] Failed to connect/subscribe: {ex.Message}");
-}
+_ = Task.Run(async () =>
+             {
+                 while (!app.Lifetime.ApplicationStopping.IsCancellationRequested)
+                 {
+                     try
+                     {
+                         await mqttClient.ConnectAsync(mqttOptions);
+                         await mqttClient.SubscribeAsync(
+                             new MqttTopicFilterBuilder()
+                                 .WithTopic(mqttTopic)
+                                 .WithAtLeastOnceQoS()
+                                 .Build()
+                         );
+
+                         Console.WriteLine($"[MQTT] Subscribed to '{mqttTopic}'");
+
+                         var disconnected = new TaskCompletionSource();
+                         mqttClient.DisconnectedAsync +=
+                             _ =>
+                         {
+                             disconnected.TrySetResult();
+                             return Task.CompletedTask;
+                         };
+
+                         await disconnected.Task;
+                     }
+                     catch (Exception ex)
+                     {
+                         Console.WriteLine($"[MQTT] Connection failed: {ex.Message}");
+                     }
+
+                     await Task.Delay(TimeSpan.FromSeconds(1), app.Lifetime.ApplicationStopping);
+                 }
+             });
+
 // --- end MQTT subscriber ---
 
 app.Run();

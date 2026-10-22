@@ -32,6 +32,10 @@ Database: **PostgreSQL (TimescaleDB compatible)**. Cache/queue: **Redis**. MQTT:
 
 See `docs/architecture.md` and `docs/api-specs.md` for more details.
 
+## MQTT connection resilience
+
+`Ingest.Gateway` maintains its Mosquitto connection in a background task, so the HTTP API can start even when MQTT is unavailable. It subscribes to `tenants/+/devices/+/measurements` after connecting. If the initial connection fails, the gateway logs the failure, waits one second, and retries the connection and subscription until they succeed. After an established MQTT connection disconnects, the same loop waits one second and reconnects. The loop stops when the gateway is shutting down.
+
 ## Guides: Running and Using the System
 
 ### 1. Start the system
