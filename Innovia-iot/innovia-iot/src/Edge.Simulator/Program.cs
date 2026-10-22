@@ -5,6 +5,7 @@ using System.Text;
 using System.Net.Http.Json;
 
 var registry = new HttpClient { BaseAddress = new Uri("http://localhost:5101") };
+var portal = new HttpClient { BaseAddress = new Uri("http://localhost:5104") };
 
 var tenant = await registry.GetFromJsonAsync<Tenant>(
     "/api/tenants/by-slug/innovia"
@@ -36,27 +37,32 @@ catch (Exception ex)
 
 var rand = new Random();
 
-double RandomTemp()
+async Task<double> RandomTemp(Device dev)
 {
-    int plus_or_minus = rand.Next(0, 1);
+    var recent_reading = await portal.GetFromJsonAsync<LatestReading>(
+        $"/portal/{tenant!.Id}/devices/{dev!.Id}/latest?type=temperature"
+    );
 
-    if (plus_or_minus == 1)
-    {
-        return rand.Next(0, 4) + rand.NextDouble();
-    };
+    double temp = recent_reading?.point?.V ?? 22.0;
 
-    return -rand.Next(0, 4) + -rand.NextDouble();
+    double change = rand.NextDouble() * 2;
+
+    return temp <= 0 ? temp + change : rand.Next(0, 2) == 1 ? temp + change
+                                                            : Math.Max(0, temp - change);
 };
 
-int RandomCO2()
+async Task<double> RandomCO2(Device dev)
 {
-    int plus_or_minus = rand.Next(0, 1);
+    var recent_reading = await portal.GetFromJsonAsync<LatestReading>(
+        $"/portal/{tenant!.Id}/devices/{dev!.Id}/latest?type=co2"
+    );
 
-    if (plus_or_minus == 1)
-    {
-        return rand.Next(0, 700);
-    }
-    return -rand.Next(0, 400);
+    double co2 = recent_reading?.point?.V ?? 900;
+
+    int change = rand.Next(0, 700);
+
+    return co2 <= 200 ? co2 + change : rand.Next(0, 2) == 1 ? co2 + change
+                                                            : Math.Max(200, co2 - change);
 }
 
 while (true)
@@ -70,10 +76,10 @@ while (true)
             metrics = new[] {
                 new {
                     type = "temperature",
-                    value = 21.5 + RandomTemp(),
+                    value = await RandomTemp(device),
                     unit = "C"
                 },
-                new { type = "co2", value = 900.0 + RandomCO2(), unit = "ppm" }
+                new { type = "co2", value = await RandomCO2(device), unit = "ppm" }
             }
         };
         var topic = $"tenants/innovia/devices/{device.Serial}/measurements";
@@ -100,4 +106,15 @@ record Device(
     string Model,
     string Serial,
     string Status
+);
+
+record LatestReading(
+    Guid Id,
+    string type,
+    ReadingPoint point
+);
+
+record ReadingPoint(
+    DateTimeOffset T,
+    double V
 );
