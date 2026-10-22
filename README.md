@@ -25,7 +25,7 @@ Ingest Gateway, Device Registry och portaladaptern. Se
 Starta Docker Desktop, kör sedan:
 
 ```bash
-docker run --name innovia-db -e POSTGRES_USER=app -e POSTGRES_PASSWORD=devpassword -e POSTGRES_DB=appdb -p 5432:5432 -d postgres
+docker run --name innovia-db -e POSTGRES_USER=app -e POSTGRES_PASSWORD=devpassword -e POSTGRES_DB=appdb -p 5433:5432 -d postgres
 ```
 
 Nästa gång räcker det med `docker start innovia-db` om containern redan finns.
@@ -52,7 +52,7 @@ npm run dev
 
 ## Felsökning
 
-**"Failed to connect to 127.0.0.1:5432"** — PostgreSQL kör inte. Kontrollera att Docker Desktop är igång och att containern är startad (`docker start innovia-db`).
+**"Failed to connect to 127.0.0.1:5433"** — PostgreSQL kör inte, eller så används fel host-port. Kontrollera att Docker Desktop är igång och att containern är startad (`docker start innovia-db`). Port `5433` används lokalt för bokningsdatabasen för att inte krocka med IoT-projektets PostgreSQL på `5432`.
 
 ## AI-supportchattbot
 
@@ -68,7 +68,7 @@ React-komponent → POST /api/chat/ChatBot → ChatService → OpenAI Responses 
 - API-endpoint: `Backend/Controllers/ChatController.cs`
 - AI-tjänst och instruktioner: `Backend/Services/ChatService.cs`
 - Chatten kräver en giltig JWT, eftersom endpointen använder `[Authorize]`.
-- De senaste 20 meddelandena skickas med som chatthistorik så att boten kan använda samtalets sammanhang.
+- Klienten skickar högst de 20 senaste meddelandena som chatthistorik. Historiken sparas bara i den öppna chatten i webbläsaren; den lagras inte av backend.
 
 ### Konfiguration lokalt
 
@@ -86,7 +86,7 @@ Starta sedan backend och frontend enligt instruktionerna ovan, logga in och öpp
 
 - API-nyckeln får aldrig läggas i React/Vite-koden, `appsettings.json` eller Git. Använd .NET User Secrets lokalt och en skyddad miljövariabel på produktionsservern.
 - Endast autentiserade användare kan anropa chatt-API:t.
-- Chatt-API:t begränsas till 10 anrop per minut och inloggad användare. Meddelanden får vara högst 1 000 tecken och högst 20 historikmeddelanden skickas med.
+- Chatt-API:t begränsas till 10 anrop per minut och inloggad användare. Meddelanden får vara högst 1 000 tecken, historiken högst 20 meddelanden, och varje historikpost måste ha rollen `user` eller `assistant`.
 - AI-svaret begränsas till högst 400 output-tokens för att hålla svaren korta och begränsa kostnaden.
 - Chatboten instrueras att inte påstå att den har kontrollerat bokningar, databas, loggar eller användarens enhet.
 - Vid osäkerhet eller ett troligt systemfel ska den hänvisa användaren till IT-support i stället för att hitta på ett svar.
