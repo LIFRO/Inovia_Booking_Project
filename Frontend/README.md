@@ -20,6 +20,13 @@ Vite visar den lokala adressen, normalt `http://localhost:5173`.
 - Administrationsvy och en administratörsskyddad temperaturvy för IoT-integrationen.
 - IT-supportchatt för inloggade användare. Komponenten `src/components/ITSupport.tsx` skickar `POST /api/chat/ChatBot` med JWT från `localStorage` och visar ett telefonalternativ till IT-support. API-nyckeln till AI-tjänsten finns aldrig i frontend.
 
+### Temperaturhistorik
+
+Temperaturvyns historikdiagram visar temperatur och CO₂ över vald tidsperiod. Punkterna
+placeras efter deras faktiska tidstämplar, så luckor i sensorrapporteringen syns i kurvan.
+Vyn använder minutmedelvärden när mindre än 12 timmars data är tillgänglig och timmedelvärden
+för längre historik. Hovra över diagrammet för tidstämpel och uppmätt värde för närmaste punkt.
+
 Chattens historik hålls bara i komponentens minne. Den försvinner när sidan laddas om och återanvänds inte mellan inloggningar.
 
 ## Utvecklingsproxy
