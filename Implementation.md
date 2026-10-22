@@ -26,6 +26,10 @@ This document records the current IoT-related changes across the Booking System 
 
 - The gateway caches resolved tenant and device IDs using a `cacheKey` composed of the tenant slug and device serial (`{tenantSlug}:{deviceSerial}`).
 - Both cache lookup and storage use this key, so each device has its own cached resolution within a tenant. Telemetry from multiple devices no longer reuses the first device resolved for that tenant.
+- MQTT payload handling verifies that a supplied `deviceId` matches the device serial in the MQTT topic. If the payload omits `deviceId`, the gateway uses the topic serial; if the values differ, it rejects the message.
+- The MQTT connection is maintained by a background retry loop. If Mosquitto is unavailable at startup or disconnects later, the gateway retries the connection and subscription without preventing the HTTP API from starting.
+- The gateway starts its SignalR connection to Realtime Hub in a background retry loop. If Realtime Hub is started after Ingest Gateway, telemetry ingestion can still start and the connection is retried once per second until it succeeds. SignalR automatic reconnect handles later connection drops.
+- Before persisting a metric, the gateway checks for an existing measurement with the same tenant ID, device ID, metric type, and timestamp. This prevents a repeated telemetry submission from inserting the same measurement twice.
 
 ## Portal Adapter
 

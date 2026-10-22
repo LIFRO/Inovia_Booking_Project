@@ -46,7 +46,28 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var hub = scope.ServiceProvider.GetRequiredService<HubConnection>();
-    await hub.StartAsync();
+    async Task ConnectToRealtimeHubAsync(CancellationToken stoppingToken)
+    {
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            try
+            {
+                await hub.StartAsync(stoppingToken);
+                app.Logger.LogInformation("Connected to Realtime Hub");
+                return;
+            }
+            catch (Exception ex)
+            {
+                app.Logger.LogWarning(
+                    ex,
+                    "Could not connect to Realtime Hub. Retrying in one second."
+                );
+                await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
+            }
+        }
+    }
+
+    _ = ConnectToRealtimeHubAsync(app.Lifetime.ApplicationStopping);
 }
 
 // Ensure database and tables exist (quick-start dev convenience)
@@ -236,13 +257,18 @@ public class IngestService
 
         foreach (var m in payload.Metrics)
         {
-            _db.Measurements.Add(new MeasurementRow {
-                Time = payload.Timestamp,
-                TenantId = ids.TenantId,
-                DeviceId = ids.DeviceId,
-                Type = m.Type,
-                Value = m.Value
-            });
+            var alreadyExists = await _db.Measurements.AnyAsync(row => row.TenantId == ids.TenantId && row.DeviceId == ids.DeviceId && row.Type == m.Type && row.Time == payload.Timestamp);
+
+            if (!alreadyExists)
+            {
+                _db.Measurements.Add(new MeasurementRow {
+                    Time = payload.Timestamp,
+                    TenantId = ids.TenantId,
+                    DeviceId = ids.DeviceId,
+                    Type = m.Type,
+                    Value = m.Value
+                });
+            }
         }
         await _db.SaveChangesAsync();
 
