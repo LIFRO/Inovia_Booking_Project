@@ -21,6 +21,7 @@ This document records the current IoT-related changes across the Booking System 
 - The simulator retrieves the `innovia` tenant and its devices from Device Registry before connecting to MQTT.
 - It emits temperature and CO₂ measurements for every returned device, using each device serial in both the payload and MQTT topic.
 - The publish interval is currently one second.
+- If Mosquitto is unavailable when the simulator starts, it waits one second and retries the MQTT connection until it succeeds. The publishing loop starts only after the broker connection has been established.
 
 ## Ingest Gateway
 

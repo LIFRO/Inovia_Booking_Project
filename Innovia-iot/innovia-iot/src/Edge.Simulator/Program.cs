@@ -23,16 +23,20 @@ var options = new MqttClientOptionsBuilder()
                   .WithTcpServer("localhost", 1883)
                   .Build();
 
-Console.WriteLine("Edge.Simulator starting… connecting to MQTT at localhost:1883");
-try
+while (!client.IsConnected)
 {
-    await client.ConnectAsync(options);
-    Console.WriteLine("✅ Connected to MQTT broker.");
-}
-catch (Exception ex)
-{
-    Console.WriteLine($"❌ Failed to connect to MQTT broker: {ex.Message}");
-    throw;
+
+    Console.WriteLine("Edge.Simulator starting… connecting to MQTT at localhost:1883");
+    try
+    {
+        await client.ConnectAsync(options);
+        Console.WriteLine("✅ Connected to MQTT broker.");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"❌ Failed to connect to MQTT broker: {ex.Message}");
+        await Task.Delay(TimeSpan.FromSeconds(1));
+    }
 }
 
 var rand = new Random();
