@@ -1,32 +1,34 @@
-# React + TypeScript + Vite
+# Innovia frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+React- och Vite-klienten för Innovias resursbokningssystem. Klienten använder den relativa API-basen `/api` och SignalR-hubben `/hubs/bookings`; Vites utvecklingsproxy skickar båda vidare till backend på `http://localhost:5109`.
 
-Currently, two official plugins are available:
+## Starta lokalt
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Starta backend och databasen först enligt [huvud-README:n](../README.md). Starta sedan klienten från den här katalogen:
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Vite visar den lokala adressen, normalt `http://localhost:5173`.
+
+## Funktioner
+
+- Inloggning och registrering samt JWT-baserad skydd av interna sidor.
+- Bokning, avbokning, resursöversikt och realtidsuppdateringar via SignalR.
+- Administrationsvy och en administratörsskyddad temperaturvy för IoT-integrationen.
+- IT-supportchatt för inloggade användare. Komponenten `src/components/ITSupport.tsx` skickar `POST /api/chat/ChatBot` med JWT från `localStorage` och visar ett telefonalternativ till IT-support. API-nyckeln till AI-tjänsten finns aldrig i frontend.
+
+### Temperaturhistorik
+
+Temperaturvyns historikdiagram visar temperatur och CO₂ över vald tidsperiod. Punkterna
+placeras efter deras faktiska tidstämplar, så luckor i sensorrapporteringen syns i kurvan.
+Vyn använder minutmedelvärden när mindre än 12 timmars data är tillgänglig och timmedelvärden
+för längre historik. Hovra över diagrammet för tidstämpel och uppmätt värde för närmaste punkt.
+
+Chattens historik hålls bara i komponentens minne. Den försvinner när sidan laddas om och återanvänds inte mellan inloggningar.
+
+## Utvecklingsproxy
+
+Utöver `/api` och `/hubs` proxas IoT-vägarna `/registry`, `/portal-api` och `/telemetry`. De används av temperaturvyn och beskrivs i [IoT-ändringsloggen](../MD_FILES/IOT_INTEGRATION_CHANGELOG.md).

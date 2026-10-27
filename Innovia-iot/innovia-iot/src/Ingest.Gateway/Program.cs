@@ -46,7 +46,28 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var hub = scope.ServiceProvider.GetRequiredService<HubConnection>();
-    await hub.StartAsync();
+    async Task ConnectToRealtimeHubAsync(CancellationToken stoppingToken)
+    {
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            try
+            {
+                await hub.StartAsync(stoppingToken);
+                app.Logger.LogInformation("Connected to Realtime Hub");
+                return;
+            }
+            catch (Exception ex)
+            {
+                app.Logger.LogWarning(
+                    ex,
+                    "Could not connect to Realtime Hub. Retrying in one second."
+                );
+                await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
+            }
+        }
+    }
+
+    _ = ConnectToRealtimeHubAsync(app.Lifetime.ApplicationStopping);
 }
 
 // Ensure database and tables exist (quick-start dev convenience)
@@ -125,6 +146,13 @@ mqttClient.ApplicationMessageReceivedAsync += async e =>
             {
                 batch.DeviceId = serial;
             }
+            else if (!string.Equals(batch.DeviceId, serial, StringComparison.Ordinal))
+            {
+                Console.WriteLine(
+                    $"[MQTT] Skipping: payload deviceId '{batch.DeviceId}' does not match topic serial '{serial}'"
+                );
+                return;
+            }
 
             using var scope = app.Services.CreateScope();
             var svc = scope.ServiceProvider.GetRequiredService<IngestService>();
@@ -139,19 +167,41 @@ mqttClient.ApplicationMessageReceivedAsync += async e =>
     }
 };
 
-try
-{
-    await mqttClient.ConnectAsync(mqttOptions);
-    await mqttClient.SubscribeAsync(new MqttTopicFilterBuilder()
-                                        .WithTopic(mqttTopic)
-                                        .WithAtLeastOnceQoS()
-                                        .Build());
-    Console.WriteLine($"[MQTT] Subscribed to '{mqttTopic}' on localhost:1883");
-}
-catch (Exception ex)
-{
-    Console.WriteLine($"[MQTT] Failed to connect/subscribe: {ex.Message}");
-}
+_ = Task.Run(async () =>
+             {
+                 while (!app.Lifetime.ApplicationStopping.IsCancellationRequested)
+                 {
+                     try
+                     {
+                         await mqttClient.ConnectAsync(mqttOptions);
+                         await mqttClient.SubscribeAsync(
+                             new MqttTopicFilterBuilder()
+                                 .WithTopic(mqttTopic)
+                                 .WithAtLeastOnceQoS()
+                                 .Build()
+                         );
+
+                         Console.WriteLine($"[MQTT] Subscribed to '{mqttTopic}'");
+
+                         var disconnected = new TaskCompletionSource();
+                         mqttClient.DisconnectedAsync +=
+                             _ =>
+                         {
+                             disconnected.TrySetResult();
+                             return Task.CompletedTask;
+                         };
+
+                         await disconnected.Task;
+                     }
+                     catch (Exception ex)
+                     {
+                         Console.WriteLine($"[MQTT] Connection failed: {ex.Message}");
+                     }
+
+                     await Task.Delay(TimeSpan.FromSeconds(1), app.Lifetime.ApplicationStopping);
+                 }
+             });
+
 // --- end MQTT subscriber ---
 
 app.Run();
@@ -207,13 +257,18 @@ public class IngestService
 
         foreach (var m in payload.Metrics)
         {
-            _db.Measurements.Add(new MeasurementRow {
-                Time = payload.Timestamp,
-                TenantId = ids.TenantId,
-                DeviceId = ids.DeviceId,
-                Type = m.Type,
-                Value = m.Value
-            });
+            var alreadyExists = await _db.Measurements.AnyAsync(row => row.TenantId == ids.TenantId && row.DeviceId == ids.DeviceId && row.Type == m.Type && row.Time == payload.Timestamp);
+
+            if (!alreadyExists)
+            {
+                _db.Measurements.Add(new MeasurementRow {
+                    Time = payload.Timestamp,
+                    TenantId = ids.TenantId,
+                    DeviceId = ids.DeviceId,
+                    Type = m.Type,
+                    Value = m.Value
+                });
+            }
         }
         await _db.SaveChangesAsync();
 
