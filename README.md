@@ -2,6 +2,25 @@
 
 Bokningssystem för kontorsresurser — mötesrum, skrivbord, VR-headsets och AI-servrar. Backend i ASP.NET Core, frontend i React/Vite.
 
+## Tekniker och ramverk
+
+- **Frontend:** React, TypeScript och Vite
+- **Backend:** ASP.NET Core 8 och C#
+- **Databas:** PostgreSQL med Entity Framework Core och Npgsql
+- **Autentisering:** JWT Bearer Authentication
+- **Realtidsuppdateringar:** SignalR
+- **API-dokumentation:** Swagger / OpenAPI
+- **Containerisering lokalt:** Docker och Docker Compose
+- **AI-support:** OpenAI Responses API
+
+## Så fungerar systemet
+
+Användaren loggar in, ser tillgängliga resurser och skapar eller avbokar sina bokningar. Administratörer kan även se och hantera samtliga bokningar. Frontend kommunicerar med backend via ett REST-API, medan SignalR skickar bokningsuppdateringar i realtid. Data lagras i PostgreSQL.
+
+```text
+React-klient  <-- REST och SignalR -->  ASP.NET Core API  <-->  PostgreSQL
+```
+
 ## IoT-källkod
 
 IoT-lösningen är en vanlig del av detta repository och finns i
@@ -14,6 +33,10 @@ Ingest Gateway, Device Registry och portaladaptern. Se
 [innovia.froden.nu
 ](https://innovia.froden.nu/login)
 
+## Egna vidareutvecklade funktioner
+
+>
+
 ## Förutsättningar
 
 - [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
@@ -22,13 +45,30 @@ Ingest Gateway, Device Registry och portaladaptern. Se
 
 ## 1. Starta databasen
 
-Starta Docker Desktop, kör sedan:
+Starta Docker Desktop och välj ett av följande alternativ.
+
+### Alternativ 1: Docker Compose
+
+```bash
+cd Backend/DB
+docker compose up -d
+```
+
+Nästa gång räcker det att köra `docker compose up -d` från samma katalog.
+
+### Alternativ 2: Docker-kommandot direkt
 
 ```bash
 docker run --name innovia-db -e POSTGRES_USER=app -e POSTGRES_PASSWORD=devpassword -e POSTGRES_DB=appdb -p 5433:5432 -d postgres
 ```
 
-Nästa gång räcker det med `docker start innovia-db` om containern redan finns.
+Nästa gång startar du den befintliga containern med:
+
+```bash
+docker start innovia-db
+```
+
+Båda alternativen startar PostgreSQL på `localhost:5433`.
 
 ## 2. Starta backend
 
@@ -52,7 +92,7 @@ npm run dev
 
 ## Felsökning
 
-**"Failed to connect to 127.0.0.1:5433"** — PostgreSQL kör inte, eller så används fel host-port. Kontrollera att Docker Desktop är igång och att containern är startad (`docker start innovia-db`). Port `5433` används lokalt för bokningsdatabasen för att inte krocka med IoT-projektets PostgreSQL på `5432`.
+**"Failed to connect to 127.0.0.1:5433"** — PostgreSQL kör inte, eller så används fel host-port. Kontrollera att Docker Desktop är igång och att databasen har startats med något av alternativen ovan. Port `5433` används lokalt för bokningsdatabasen för att inte krocka med IoT-projektets PostgreSQL på `5432`.
 
 ## AI-supportchattbot
 
