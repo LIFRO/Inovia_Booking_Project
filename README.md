@@ -12,7 +12,7 @@ Ingest Gateway, Device Registry och portaladaptern. Se
 ## Produktion server
 
 [innovia.froden.nu
-](https://innovia.froden.nu/login)
+](https://innovia.froden.nu/login) Inaktiv
 
 ## Förutsättningar
 
